@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import type { ButtonProps } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { useGoogleAuthSimple } from "@/hooks/useGoogleAuth";
 import { cn } from "@/lib/utils";
@@ -35,7 +34,7 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-export interface GoogleSignInButtonProps extends Omit<ButtonProps, "onClick"> {
+export interface GoogleSignInButtonProps extends Omit<React.ComponentProps<typeof Button>, "onClick"> {
   /** Mode d'authentification */
   mode?: "signin" | "signup";
   /** Options OAuth personnalisées */

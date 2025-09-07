@@ -1,5 +1,6 @@
 import { LockIcon, MailIcon } from "lucide-react";
-import { signInWithGoogleAction } from "@/actions/auth";
+import Link from "next/link";
+import { signInWithEmailAction, signInWithGoogleAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,7 +24,7 @@ export default function SignInPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 px-8 pb-8">
-        <form className="space-y-4">
+        <form action={signInWithEmailAction} className="space-y-4">
           <div className="space-y-2">
             <Label
               htmlFor="email"
@@ -38,6 +39,7 @@ export default function SignInPage() {
                 type="email"
                 placeholder="exemple@yeko.com"
                 className="pr-10 h-12 border-border focus:border-primary focus:ring-primary"
+                required
               />
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                 <MailIcon className="size-5 text-muted-foreground" />
@@ -59,23 +61,21 @@ export default function SignInPage() {
                 type="password"
                 placeholder="********"
                 className="pr-20 h-12 border-border focus:border-primary focus:ring-primary"
+                required
               />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-muted-foreground hover:text-foreground"
-              >
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                 <LockIcon className="size-5 text-muted-foreground" />
-              </button>
+              </div>
             </div>
           </div>
 
           <div className="text-left">
-            <button
-              type="button"
+            <Link
+              href="/forgot-password"
               className="text-sm text-muted-foreground hover:text-foreground"
             >
               Mot de passe oublié?
-            </button>
+            </Link>
           </div>
 
           <Button

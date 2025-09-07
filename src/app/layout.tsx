@@ -14,7 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Yeko Admin",
-  description: "Admin dashboard for Yeko application",
+  description:
+    "Yeko est une plateforme éducative le suivie de la vie scolaire des élèves par leur parent",
+  icons: {
+    icon: "/logo2.png",
+  },
 };
 
 export default function RootLayout({

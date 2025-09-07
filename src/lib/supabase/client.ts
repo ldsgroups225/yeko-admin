@@ -1,6 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { env } from "@/lib/env";
-import type { Database } from "./types";
 
 export function createClient() {
   return createBrowserClient(
@@ -10,4 +9,4 @@ export function createClient() {
 }
 
 // Keep SupabaseClient type export if needed elsewhere
-export type SupabaseClient = ReturnType<typeof createClient<Database>>;
+export type SupabaseClient = ReturnType<typeof createClient>;
