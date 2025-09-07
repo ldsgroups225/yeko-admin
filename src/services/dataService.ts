@@ -312,6 +312,112 @@ export async function getAvailableSchools(): Promise<
   return schools || [];
 }
 
+// Get users with specific roles (for headmaster assignment)
+export async function getUsersByRole(
+  roleId: number,
+): Promise<UserWithSchool[]> {
+  const supabase = await createClient();
+
+  const { data: users, error } = await supabase
+    .from("users")
+    .select(`
+      *,
+      user_roles!inner(
+        role_id,
+        school_id,
+        roles(name)
+      )
+    `)
+    .eq("user_roles.role_id", roleId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching users by role:", error);
+    return [];
+  }
+
+  // Transform the data to include school information
+  const usersWithSchool = await Promise.all(
+    users.map(async (user) => {
+      // Get user's primary role and school
+      const { data: userRole } = await supabase
+        .from("user_roles")
+        .select(`
+          role_id,
+          school_id,
+          roles(name)
+        `)
+        .eq("user_id", user.id)
+        .eq("role_id", roleId)
+        .limit(1)
+        .single();
+
+      let school_name = null;
+      let school_id = null;
+      let role = "user";
+
+      if (userRole) {
+        role = userRole.roles?.name || "user";
+        school_id = userRole.school_id;
+
+        if (school_id) {
+          const { data: school } = await supabase
+            .from("schools")
+            .select("name")
+            .eq("id", school_id)
+            .single();
+
+          school_name = school?.name || null;
+        }
+      }
+
+      return {
+        ...user,
+        school_name,
+        school_id,
+        role,
+      };
+    }),
+  );
+
+  return usersWithSchool;
+}
+
+// Get available headmasters (users with HEADMASTER role who are not assigned to any school)
+export async function getAvailableHeadmasters(): Promise<UserWithSchool[]> {
+  const supabase = await createClient();
+
+  // Get users with HEADMASTER role who are not assigned to any school
+  const { data: users, error } = await supabase
+    .from("users")
+    .select(`
+      *,
+      user_roles!inner(
+        role_id,
+        school_id,
+        roles(name)
+      )
+    `)
+    .eq("user_roles.role_id", 6) // HEADMASTER role
+    .is("user_roles.school_id", null) // Not assigned to any school
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching available headmasters:", error);
+    return [];
+  }
+
+  // Transform the data
+  const usersWithSchool = users.map((user) => ({
+    ...user,
+    school_name: null,
+    school_id: null,
+    role: "Headmaster",
+  }));
+
+  return usersWithSchool;
+}
+
 // Get grades for school linking
 export async function getGrades(): Promise<
   Array<{ id: number; name: string }>

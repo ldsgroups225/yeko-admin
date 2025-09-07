@@ -1,5 +1,6 @@
 import { Building2 } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -142,7 +143,13 @@ export default function ProtectedLayout({ children }: Props) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-border/50 p-4">
-            <UserButton />
+            <Suspense
+              fallback={
+                <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />
+              }
+            >
+              <UserButton />
+            </Suspense>
           </SidebarFooter>
         </Sidebar>
 

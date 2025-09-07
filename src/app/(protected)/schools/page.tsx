@@ -6,12 +6,14 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 import { getSchools } from "@/services/dataService";
+import { AssignHeadMasterWrapper } from "./_components";
 
 export default async function SchoolsPage() {
   const schools = await getSchools();
@@ -109,6 +111,12 @@ export default async function SchoolsPage() {
                 </Button>
               </div>
             </CardContent>
+            <CardFooter>
+              <AssignHeadMasterWrapper
+                schoolId={school.id}
+                schoolName={school.name}
+              />
+            </CardFooter>
           </Card>
         ))}
       </div>

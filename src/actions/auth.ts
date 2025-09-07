@@ -1,3 +1,5 @@
+"use server";
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signInWithGoogle, signUpWithGoogle } from "@/services/oauthService";
@@ -6,8 +8,6 @@ import { signInWithGoogle, signUpWithGoogle } from "@/services/oauthService";
  * Server action for Google sign-in
  */
 export async function signInWithGoogleAction() {
-  "use server";
-
   try {
     const result = await signInWithGoogle();
 
@@ -33,8 +33,6 @@ export async function signInWithGoogleAction() {
  * Server action for Google sign-up
  */
 export async function signUpWithGoogleAction() {
-  "use server";
-
   try {
     const result = await signUpWithGoogle();
 
@@ -60,8 +58,6 @@ export async function signUpWithGoogleAction() {
  * Server action for email/password sign-in
  */
 export async function signInWithEmailAction(formData: FormData) {
-  "use server";
-
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -94,8 +90,6 @@ export async function signInWithEmailAction(formData: FormData) {
  * Server action for email/password sign-up
  */
 export async function signUpWithEmailAction(formData: FormData) {
-  "use server";
-
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const firstName = formData.get("firstName") as string;
@@ -141,8 +135,6 @@ export async function signUpWithEmailAction(formData: FormData) {
  * Server action for sign-out
  */
 export async function signOutAction() {
-  "use server";
-
   try {
     const supabase = await createClient();
     await supabase.auth.signOut();
@@ -157,8 +149,6 @@ export async function signOutAction() {
  * Server action for password reset
  */
 export async function resetPasswordAction(formData: FormData) {
-  "use server";
-
   const email = formData.get("email") as string;
 
   if (!email) {
