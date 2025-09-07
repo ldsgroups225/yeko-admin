@@ -203,17 +203,29 @@ export function useClassActions(initialClasses: Class[] = []) {
 
 // School actions
 export function useSchoolActions(initialSchools: School[] = []) {
-  const createAction = useServerAction(createSchool, {
-    successMessage: "École créée avec succès",
-    errorMessage: "Erreur lors de la création de l'école",
-  });
+  const createAction = useServerAction(
+    async (formData: FormData) => {
+      const result = await createSchool({}, formData);
+      return {
+        success: result.success || false,
+        data: result,
+        error: result.message,
+      };
+    },
+    {
+      successMessage: "École créée avec succès",
+      errorMessage: "Erreur lors de la création de l'école",
+    },
+  );
 
   const updateAction = useServerAction(
-    async (params: {
-      id: string;
-      data: Parameters<typeof updateSchool>[1];
-    }) => {
-      return updateSchool(params.id, params.data);
+    async (params: { id: string; formData: FormData }) => {
+      const result = await updateSchool(params.id, {}, params.formData);
+      return {
+        success: result.success || false,
+        data: result,
+        error: result.message,
+      };
     },
     {
       successMessage: "École mise à jour avec succès",
@@ -229,7 +241,8 @@ export function useSchoolActions(initialSchools: School[] = []) {
   const toggleStatusAction = useServerAction(
     async (params: { id: string; isActive: boolean }) => {
       const { id, isActive } = params;
-      return toggleSchoolStatus(id, isActive);
+      const status = isActive ? "active" : "suspended";
+      return toggleSchoolStatus(id, status);
     },
     {
       onSuccess: () => {

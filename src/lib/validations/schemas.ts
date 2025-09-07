@@ -1,12 +1,24 @@
 import { z } from "zod";
 
+enum SchoolStateEnum {
+  ACTIVE = 1,
+  SUSPENDED = 3,
+}
+
 // Base schemas
+// School Status Enum (from DB)
+export const schoolStatusEnum = z.enum(["private", "public"]);
+export const schoolStateEnum = z.enum([
+  SchoolStateEnum.ACTIVE.toString(),
+  SchoolStateEnum.SUSPENDED.toString(),
+]);
 export const uuidSchema = z.uuid();
-export const emailSchema = z.email();
+export const stringSchema = z.string().trim();
+export const emailSchema = z.email().trim().toLowerCase();
+export const urlSchema = z.url().trim();
 export const phoneSchema = z
   .string()
   .regex(/^[+]?[\d\s\-()]+$/, "Format de téléphone invalide");
-
 // User schemas
 export const createUserSchema = z.object({
   email: emailSchema,
@@ -25,22 +37,32 @@ export const updateUserSchema = createUserSchema.partial().extend({
 
 // School schemas
 export const createSchoolSchema = z.object({
-  name: z
-    .string()
-    .min(3, "Le nom de l'école doit contenir au moins 3 caractères"),
-  address: z.string().min(5, "L'adresse doit contenir au moins 5 caractères"),
-  city: z.string().min(2, "La ville doit contenir au moins 2 caractères"),
-  code: z.string().min(2, "Le code doit contenir au moins 2 caractères"),
-  cycle_id: uuidSchema,
+  name: stringSchema.min(
+    3,
+    "Le nom de l'école doit contenir au moins 3 caractères",
+  ),
+  address: stringSchema
+    .min(5, "L'adresse doit contenir au moins 5 caractères")
+    .nullable(),
+  city: stringSchema.min(2, "La ville doit contenir au moins 2 caractères"),
+  code: stringSchema.min(2, "Le code doit contenir au moins 2 caractères"),
+  cycle_id: z.enum(["primary", "secondary"]),
+  state_id: schoolStateEnum
+    .optional()
+    .default(SchoolStateEnum.SUSPENDED.toString())
+    .transform(Number),
+  is_technical_education: z.boolean().optional().default(false),
   phone: phoneSchema,
   email: emailSchema,
-  website: z.url().optional(),
-  logo_url: z.url().optional(),
-  is_active: z.boolean().default(true),
+  image_url: stringSchema
+    .transform((url) => (url.length === 0 ? null : url))
+    .nullish(),
+  status: schoolStatusEnum.default("private"),
 });
 
 export const updateSchoolSchema = createSchoolSchema.partial().extend({
   id: uuidSchema,
+  updated_by: uuidSchema.optional(),
 });
 
 // Grade schemas
