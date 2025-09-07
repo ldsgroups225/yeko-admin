@@ -1,6 +1,5 @@
 "use client";
 
-import { UserPlus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -21,9 +20,14 @@ export const NavbarActionButton = () => {
   if (!actionButton) return null;
 
   return (
-    <Button variant="outline" size="sm" className="ml-auto" asChild>
-      <Link href={actionButton.href}>
-        <UserPlus className="h-4 w-4 mr-2" />
+    <Button
+      variant="default"
+      size="sm"
+      className="ml-auto hover-lift shadow-soft"
+      asChild
+    >
+      <Link href={actionButton.href} className="flex items-center gap-2">
+        <actionButton.icon className="h-4 w-4" />
         {actionButton.title}
       </Link>
     </Button>

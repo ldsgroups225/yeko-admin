@@ -11,67 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-// Mock data - replace with actual Supabase queries
-async function getSchools() {
-  return [
-    {
-      id: "1",
-      name: "Lycée Jean Mermoz",
-      code: "LJM001",
-      city: "Dakar",
-      address: "Avenue Bourguiba, Dakar",
-      email: "contact@ljm.sn",
-      phone: "+221 33 123 45 67",
-      status: "active" as const,
-      studentCount: 450,
-      cycle_id: "secondary",
-      is_technical_education: false,
-      created_at: "2024-01-15",
-    },
-    {
-      id: "2",
-      name: "Collège Sainte Marie",
-      code: "CSM002",
-      city: "Thiès",
-      address: "Rue de la Paix, Thiès",
-      email: "admin@csm.sn",
-      phone: "+221 33 987 65 43",
-      status: "active" as const,
-      studentCount: 320,
-      cycle_id: "secondary",
-      is_technical_education: false,
-      created_at: "2024-02-20",
-    },
-    {
-      id: "3",
-      name: "École Primaire Liberté",
-      code: "EPL003",
-      city: "Saint-Louis",
-      address: "Boulevard du Nord, Saint-Louis",
-      email: "direction@epl.sn",
-      phone: "+221 33 456 78 90",
-      status: "pending" as const,
-      studentCount: 180,
-      cycle_id: "primary",
-      is_technical_education: false,
-      created_at: "2024-03-10",
-    },
-    {
-      id: "4",
-      name: "Centre de Formation Technique",
-      code: "CFT004",
-      city: "Kaolack",
-      address: "Zone Industrielle, Kaolack",
-      email: "info@cft.sn",
-      phone: "+221 33 234 56 78",
-      status: "active" as const,
-      studentCount: 280,
-      cycle_id: "secondary",
-      is_technical_education: true,
-      created_at: "2024-01-30",
-    },
-  ];
-}
+import { getSchools } from "@/services/dataService";
 
 export default async function SchoolsPage() {
   const schools = await getSchools();
@@ -119,9 +59,11 @@ export default async function SchoolsPage() {
                   </CardDescription>
                 </div>
                 <Badge
-                  variant={school.status === "active" ? "default" : "secondary"}
+                  variant={
+                    school.status === "private" ? "default" : "secondary"
+                  }
                 >
-                  {school.status === "active" ? "Active" : "En attente"}
+                  {school.status === "private" ? "Active" : "En attente"}
                 </Badge>
               </div>
             </CardHeader>

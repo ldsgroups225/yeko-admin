@@ -26,55 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Mock data - replace with actual Supabase queries
-async function getUsers() {
-  return [
-    {
-      id: "1",
-      first_name: "Marie",
-      last_name: "Diop",
-      email: "marie.diop@email.com",
-      phone: "+221 77 123 45 67",
-      role: "teacher",
-      school_name: "Lycée Jean Mermoz",
-      school_id: "1",
-      created_at: "2024-01-15",
-    },
-    {
-      id: "2",
-      first_name: "Amadou",
-      last_name: "Fall",
-      email: "amadou.fall@email.com",
-      phone: "+221 76 987 65 43",
-      role: "parent",
-      school_name: null,
-      school_id: null,
-      created_at: "2024-02-20",
-    },
-    {
-      id: "3",
-      first_name: "Fatou",
-      last_name: "Sall",
-      email: "fatou.sall@email.com",
-      phone: "+221 78 456 78 90",
-      role: "admin",
-      school_name: "Collège Sainte Marie",
-      school_id: "2",
-      created_at: "2024-03-10",
-    },
-    {
-      id: "4",
-      first_name: "Ousmane",
-      last_name: "Ba",
-      email: "ousmane.ba@email.com",
-      phone: "+221 70 234 56 78",
-      role: "teacher",
-      school_name: null,
-      school_id: null,
-      created_at: "2024-01-30",
-    },
-  ];
-}
+import { getUsers } from "@/services/dataService";
 
 const roleLabels = {
   admin: "Administrateur",

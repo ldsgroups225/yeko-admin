@@ -22,16 +22,8 @@ const DEFAULT_ROUTES: RouteConfig = {
     "/auth/auth-code-error",
     "/forbidden",
   ],
-  protectedPaths: [
-    "/dashboard",
-    "/schools",
-    "/users",
-  ],
-  authRequiredPaths: [
-    "/dashboard",
-    "/schools",
-    "/users",
-  ],
+  protectedPaths: ["/dashboard", "/schools", "/users"],
+  authRequiredPaths: ["/dashboard", "/schools", "/users"],
   authPages: ["/sign-in", "/forgot-password"],
   defaultRedirect: "/dashboard",
 };

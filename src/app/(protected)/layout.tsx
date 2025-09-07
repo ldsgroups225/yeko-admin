@@ -1,6 +1,5 @@
-import { Building2, LogOut, UserPlus, Users } from "lucide-react";
+import { Building2 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { sidebarItems } from "@/constants";
 import { generateId } from "@/lib/utils";
-import { NavbarActionButton, UserButton } from "./_components";
+import { NavbarActionButton, NavbarTitle, UserButton } from "./_components";
 
 interface Props {
   children: React.ReactNode;
@@ -23,7 +22,7 @@ interface Props {
 export default function ProtectedLayout({ children }: Props) {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-background to-muted relative overflow-hidden">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-background via-background/95 to-muted/30 relative overflow-hidden">
         {/* Decorative Elements */}
         {/* Top left abstract shapes */}
         <div className="absolute top-10 left-10 opacity-10 z-0">
@@ -105,17 +104,17 @@ export default function ProtectedLayout({ children }: Props) {
           </svg>
         </div>
 
-        <Sidebar className="border-r border-border relative z-10 bg-card/95 backdrop-blur-sm">
-          <SidebarHeader className="border-b border-border p-6">
-            <div className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Building2 className="h-4 w-4" />
+        <Sidebar className="border-r border-border/50 relative z-10 bg-card/80 backdrop-blur-xl shadow-soft">
+          <SidebarHeader className="border-b border-border/50 p-6">
+            <div className="flex items-center space-x-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-medium">
+                <Building2 className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-lg font-semibold text-foreground">
+                <h1 className="text-lg font-bold text-foreground tracking-tight">
                   Yeko Admin
                 </h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-medium">
                   Gestion scolaire
                 </p>
               </div>
@@ -123,16 +122,18 @@ export default function ProtectedLayout({ children }: Props) {
           </SidebarHeader>
 
           <SidebarContent className="px-3 py-4">
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {sidebarItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild>
                     <Link
                       href={item.href}
-                      className="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                      className="flex items-center space-x-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-muted/80 hover:shadow-soft group"
                     >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <item.icon className="h-4 w-4 transition-colors group-hover:text-primary" />
+                      <span className="transition-colors group-hover:text-foreground">
+                        {item.title}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -140,22 +141,24 @@ export default function ProtectedLayout({ children }: Props) {
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-border p-4">
+          <SidebarFooter className="border-t border-border/50 p-4">
             <UserButton />
           </SidebarFooter>
         </Sidebar>
 
         <div className="flex-1 flex flex-col relative z-10">
-          <header className="border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/60">
-            <div className="flex h-14 items-center px-4 lg:px-6">
+          <header className="border-b border-border/50 bg-card/80 backdrop-blur-xl shadow-soft supports-[backdrop-filter]:bg-card/60">
+            <div className="flex h-16 items-center px-4 lg:px-6">
               <SidebarTrigger className="md:hidden" />
+              <NavbarTitle />
+
               <div className="flex-1" />
               <NavbarActionButton />
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto p-4 lg:p-6 bg-background/50 backdrop-blur-sm">
-            {children}
+          <main className="flex-1 overflow-auto p-6 lg:p-8 bg-background/30 backdrop-blur-sm">
+            <div className="animate-fade-in">{children}</div>
           </main>
         </div>
       </div>

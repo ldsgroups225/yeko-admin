@@ -3,7 +3,6 @@ import {
   GraduationCap,
   School,
   TrendingUp,
-  UserPlus,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -17,49 +16,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-// Mock data - replace with actual Supabase queries
-async function getSchoolStats() {
-  // This would be replaced with actual Supabase queries
-  return {
-    totalSchools: 12,
-    activeSchools: 10,
-    totalStudents: 2847,
-    totalUsers: 156,
-    recentSchools: [
-      {
-        id: "1",
-        name: "Lycée Jean Mermoz",
-        city: "Dakar",
-        studentCount: 450,
-        status: "active",
-      },
-      {
-        id: "2",
-        name: "Collège Sainte Marie",
-        city: "Thiès",
-        studentCount: 320,
-        status: "active",
-      },
-      {
-        id: "3",
-        name: "École Primaire Liberté",
-        city: "Saint-Louis",
-        studentCount: 180,
-        status: "pending",
-      },
-    ],
-    studentsPerSchool: [
-      { schoolName: "Lycée Jean Mermoz", studentCount: 450 },
-      { schoolName: "Collège Sainte Marie", studentCount: 320 },
-      { schoolName: "École Primaire Liberté", studentCount: 180 },
-      { schoolName: "Lycée Blaise Diagne", studentCount: 380 },
-      { schoolName: "Collège Kennedy", studentCount: 290 },
-    ],
-  };
-}
+import { getDashboardStats } from "@/services/dataService";
 
 export default async function DashboardPage() {
-  const stats = await getSchoolStats();
+  const stats = await getDashboardStats();
 
   return (
     <div className="space-y-6">
@@ -211,36 +171,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Actions rapides</CardTitle>
-          <CardDescription>Gérez votre plateforme scolaire</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex-col gap-2" asChild>
-              <Link href="/schools/new">
-                <Building2 className="h-6 w-6" />
-                Créer une école
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2" asChild>
-              <Link href="/users/new">
-                <UserPlus className="h-6 w-6" />
-                Ajouter un utilisateur
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2" asChild>
-              <Link href="/users">
-                <Users className="h-6 w-6" />
-                Lier un membre
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

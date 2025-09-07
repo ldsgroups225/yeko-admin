@@ -20,7 +20,8 @@ export default function ForgotPasswordPage() {
           Mot de passe oublié
         </CardTitle>
         <CardDescription className="text-muted-foreground px-4">
-          Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe
+          Entrez votre adresse email et nous vous enverrons un lien pour
+          réinitialiser votre mot de passe
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 px-8 pb-8">

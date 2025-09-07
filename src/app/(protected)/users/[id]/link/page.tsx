@@ -1,3 +1,6 @@
+import { ArrowLeft, Link as LinkIcon } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -5,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -13,38 +16,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft, Link as LinkIcon } from "lucide-react";
-import Link from "next/link";
 
-// Mock data - replace with actual Supabase queries
-async function getUser(id: string) {
-  return {
-    id,
-    first_name: "Amadou",
-    last_name: "Fall",
-    email: "amadou.fall@email.com",
-    phone: "+221 76 987 65 43",
-    role: "parent",
-  };
-}
-
-async function getAvailableSchools() {
-  return [
-    { id: "1", name: "Lycée Jean Mermoz", city: "Dakar" },
-    { id: "2", name: "Collège Sainte Marie", city: "Thiès" },
-    { id: "3", name: "École Primaire Liberté", city: "Saint-Louis" },
-    { id: "4", name: "Centre de Formation Technique", city: "Kaolack" },
-  ];
-}
+import {
+  getAvailableSchools,
+  getGrades,
+  getUserById,
+} from "@/services/dataService";
 
 interface Props {
   params: { id: string };
 }
 
 export default async function LinkUserPage({ params }: Props) {
-  const user = await getUser(params.id);
+  const user = await getUserById(params.id);
   const schools = await getAvailableSchools();
+  const grades = await getGrades();
+
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Utilisateur non trouvé
+          </h1>
+          <p className="text-muted-foreground">
+            L'utilisateur demandé n'existe pas.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -135,18 +136,11 @@ export default async function LinkUserPage({ params }: Props) {
                       <SelectValue placeholder="Sélectionner un niveau" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">CP</SelectItem>
-                      <SelectItem value="2">CE1</SelectItem>
-                      <SelectItem value="3">CE2</SelectItem>
-                      <SelectItem value="4">CM1</SelectItem>
-                      <SelectItem value="5">CM2</SelectItem>
-                      <SelectItem value="6">6ème</SelectItem>
-                      <SelectItem value="7">5ème</SelectItem>
-                      <SelectItem value="8">4ème</SelectItem>
-                      <SelectItem value="9">3ème</SelectItem>
-                      <SelectItem value="10">2nde</SelectItem>
-                      <SelectItem value="11">1ère</SelectItem>
-                      <SelectItem value="12">Terminale</SelectItem>
+                      {grades.map((grade) => (
+                        <SelectItem key={grade.id} value={grade.id.toString()}>
+                          {grade.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

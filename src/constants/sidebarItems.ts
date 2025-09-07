@@ -1,10 +1,4 @@
-import {
-  BarChart3,
-  Building2,
-  GraduationCap,
-  Settings,
-  Users,
-} from "lucide-react";
+import { BarChart3, Building2, Settings, Users } from "lucide-react";
 
 // Define the sidebar item interface
 interface SidebarItem {
@@ -24,11 +18,6 @@ export const sidebarItems = [
     title: "Écoles",
     href: "/schools",
     icon: Building2,
-  },
-  {
-    title: "Étudiants",
-    href: "/students",
-    icon: GraduationCap,
   },
   {
     title: "Utilisateurs",
@@ -58,19 +47,13 @@ export const actionButtons: ActionButton[] = [
   {
     title: "Nouvelle école",
     parent: "/schools",
-    href: "/schools/add",
+    href: "/schools/new",
     icon: Building2,
-  },
-  {
-    title: "Nouveau étudiant",
-    parent: "/students",
-    href: "/students/add",
-    icon: GraduationCap,
   },
   {
     title: "Nouveau membre d'école",
     parent: "/users",
-    href: "/users/add",
+    href: "/users/new",
     icon: Users,
   },
 ];

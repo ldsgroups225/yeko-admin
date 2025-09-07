@@ -34,7 +34,8 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-export interface GoogleSignInButtonProps extends Omit<React.ComponentProps<typeof Button>, "onClick"> {
+export interface GoogleSignInButtonProps
+  extends Omit<React.ComponentProps<typeof Button>, "onClick"> {
   /** Mode d'authentification */
   mode?: "signin" | "signup";
   /** Options OAuth personnalisées */

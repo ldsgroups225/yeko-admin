@@ -20,7 +20,8 @@ export default function AuthCodeErrorPage() {
                 Erreur d'authentification
               </h1>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-sm mx-auto">
-                Une erreur s'est produite lors de la connexion. Veuillez réessayer.
+                Une erreur s'est produite lors de la connexion. Veuillez
+                réessayer.
               </p>
             </div>
           </div>
