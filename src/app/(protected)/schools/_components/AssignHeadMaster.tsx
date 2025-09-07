@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, LinkIcon, Search, User } from "lucide-react";
+import { Check, Crown, LinkIcon, Shield, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { assignHeadmasterToSchool } from "@/actions/users";
@@ -22,10 +22,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, generateId } from "@/lib/utils";
-import { getAvailableHeadmastersClient } from "@/services/clientDataService";
+import { cn, formatFullName, generateId } from "@/lib/utils";
+import {
+  type AvailableHeadmaster,
+  getAvailableHeadmastersClient,
+} from "@/services/clientDataService";
 import type { UserWithSchool } from "@/services/dataService";
-import { getAvailableHeadmasters } from "@/services/dataService";
 
 interface AssignHeadMasterProps {
   schoolId: string;
@@ -41,7 +43,7 @@ export function AssignHeadMaster({
   const [searchQuery, setSearchQuery] = useState("");
   const [isAssigning, setIsAssigning] = useState(false);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
-  const [options, setOptions] = useState<UserWithSchool[]>([]);
+  const [options, setOptions] = useState<AvailableHeadmaster[]>([]);
 
   // Fetch available headmasters data
   useEffect(() => {
@@ -64,10 +66,8 @@ export function AssignHeadMaster({
   }, [open]);
 
   const filteredOptions = options.filter((option) => {
-    const fullName =
-      `${option.first_name || ""} ${option.last_name || ""}`.trim();
     return (
-      fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      option.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       option.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       option.school_name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -91,10 +91,18 @@ export function AssignHeadMaster({
           (option) => option.id === selectedHeadMaster,
         );
         const fullName = selectedOption
-          ? `${selectedOption.first_name || ""} ${selectedOption.last_name || ""}`.trim()
+          ? selectedOption.full_name
           : "Proviseur";
 
-        toast.success(`${fullName} affecté avec succès à ${schoolName}`);
+        let successMessage = `${fullName} affecté avec succès à ${schoolName}`;
+        if (
+          selectedOption?.hasHeadmasterRole ||
+          selectedOption?.hasDirectorRole
+        ) {
+          successMessage += " (rôles précédents supprimés)";
+        }
+
+        toast.success(successMessage);
         setOpen(false);
         setSelectedHeadMaster("");
         setSearchQuery("");
@@ -144,7 +152,6 @@ export function AssignHeadMaster({
         <div className="py-4">
           <Command shouldFilter={false} className="rounded-lg border">
             <div className="relative px-2 pt-2">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <CommandInput
                 placeholder="Rechercher par nom, email ou établissement..."
                 className="pl-8 h-9"
@@ -178,8 +185,6 @@ export function AssignHeadMaster({
                   </CommandEmpty>
                   <CommandGroup>
                     {filteredOptions.map((option) => {
-                      const fullName =
-                        `${option.first_name || ""} ${option.last_name || ""}`.trim();
                       return (
                         <CommandItem
                           key={option.id}
@@ -196,9 +201,28 @@ export function AssignHeadMaster({
                               <User className="h-5 w-5 text-primary" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-sm font-medium">
-                                {fullName}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">
+                                  {option.full_name}
+                                </span>
+                                {(option.hasHeadmasterRole ||
+                                  option.hasDirectorRole) && (
+                                  <div className="flex items-center gap-1">
+                                    {option.hasHeadmasterRole && (
+                                      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">
+                                        <Crown className="h-3 w-3" />
+                                        <span>Proviseur</span>
+                                      </div>
+                                    )}
+                                    {option.hasDirectorRole && (
+                                      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                                        <Shield className="h-3 w-3" />
+                                        <span>Directeur</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                               {option.email && (
                                 <span className="text-xs text-muted-foreground">
                                   {option.email}
@@ -207,6 +231,12 @@ export function AssignHeadMaster({
                               {option.school_name && (
                                 <span className="text-xs text-muted-foreground mt-1">
                                   Établissement actuel: {option.school_name}
+                                </span>
+                              )}
+                              {(option.hasHeadmasterRole ||
+                                option.hasDirectorRole) && (
+                                <span className="text-xs text-amber-600 mt-1 font-medium">
+                                  ⚠️ Rôle existant - sera remplacé par Proviseur
                                 </span>
                               )}
                             </div>

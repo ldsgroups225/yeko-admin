@@ -1,5 +1,5 @@
-import { env } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { env } from "@/lib/utils/env";
 import type { GoogleProfile, OAuthOptions, OAuthResult } from "@/types";
 import { ERole } from "@/types";
 

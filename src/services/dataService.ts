@@ -13,6 +13,8 @@ export type UserWithSchool = User & {
   school_name: string | null;
   school_id: string | null;
   role: string;
+  hasHeadmasterRole?: boolean;
+  hasDirectorRole?: boolean;
 };
 
 export type DashboardStats = {

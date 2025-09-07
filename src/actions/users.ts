@@ -10,6 +10,38 @@ type FormState = {
   success?: boolean;
 };
 
+// Remove all previous headmaster roles from a user
+export async function removePreviousHeadmasterRoles(
+  userId: string,
+): Promise<FormState> {
+  try {
+    const supabase = await createClient();
+
+    // Remove all existing headmaster roles for this user
+    const { error: removeError } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("user_id", userId)
+      .eq("role_id", ERole.HEADMASTER);
+
+    if (removeError) {
+      return {
+        message: `Erreur lors de la suppression des rôles précédents: ${removeError.message}`,
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return {
+      message:
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de la suppression des rôles précédents",
+    };
+  }
+}
+
 // Assign a headmaster to a school
 export async function assignHeadmasterToSchool(
   schoolId: string,
@@ -18,33 +50,10 @@ export async function assignHeadmasterToSchool(
   try {
     const supabase = await createClient();
 
-    // First, check if the user has HEADMASTER role
-    const { data: userRole, error: roleError } = await supabase
-      .from("user_roles")
-      .select("role_id")
-      .eq("user_id", headmasterId)
-      .eq("role_id", ERole.HEADMASTER)
-      .single();
-
-    if (roleError || !userRole) {
-      return {
-        message: "L'utilisateur sélectionné n'a pas le rôle de proviseur",
-      };
-    }
-
-    // Check if the headmaster is already assigned to another school
-    const { data: existingAssignment } = await supabase
-      .from("user_roles")
-      .select("school_id")
-      .eq("user_id", headmasterId)
-      .eq("role_id", ERole.HEADMASTER)
-      .not("school_id", "is", null)
-      .single();
-
-    if (existingAssignment && existingAssignment.school_id !== schoolId) {
-      return {
-        message: "Ce proviseur est déjà affecté à une autre école",
-      };
+    // First, remove any previous headmaster roles for this user
+    const removeResult = await removePreviousHeadmasterRoles(headmasterId);
+    if (!removeResult.success) {
+      return removeResult;
     }
 
     // Update or insert the user role with school assignment
@@ -134,7 +143,7 @@ export async function getSchoolHeadmaster(schoolId: string) {
     }
 
     return { success: true, data: headmaster };
-  } catch (error) {
+  } catch {
     return { success: false, data: null };
   }
 }

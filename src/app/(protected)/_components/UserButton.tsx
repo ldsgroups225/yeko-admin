@@ -97,7 +97,7 @@ export function UserButton() {
   return (
     <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all duration-200 group">
       <div className="flex items-center space-x-3">
-        <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center shadow-medium">
+        <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center shadow-medium border border-primary">
           {user.avatarUrl ? (
             <Image
               src={user.avatarUrl}
@@ -107,7 +107,7 @@ export function UserButton() {
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (
-            <span className="text-sm font-bold text-primary-foreground">
+            <span className="text-sm font-bold text-muted-foreground">
               {getInitials(user.fullName || "User")}
             </span>
           )}
