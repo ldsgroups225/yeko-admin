@@ -40,7 +40,7 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalSchools}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">
+              <span className="text-chart-3">
                 {stats.activeSchools} actives
               </span>
             </p>

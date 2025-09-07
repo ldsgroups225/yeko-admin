@@ -134,7 +134,7 @@ export default function SignInPage() {
           {/* <Button
             type="button"
             variant="outline"
-            className="h-12 border-gray-200 hover:bg-gray-50 transition-colors"
+            className="h-12 border-border hover:bg-accent transition-colors"
           >
             <svg
               className="h-5 w-5"
@@ -151,7 +151,7 @@ export default function SignInPage() {
           <Button
             type="button"
             variant="outline"
-            className="h-12 border-gray-200 hover:bg-gray-50 transition-colors"
+            className="h-12 border-border hover:bg-accent transition-colors"
           >
             <svg
               className="h-5 w-5"

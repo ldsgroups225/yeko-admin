@@ -117,7 +117,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   }
                 />
                 {state?.errors?.name && (
-                  <div id="name-error" className="text-sm text-red-600">
+                  <div id="name-error" className="text-sm text-destructive">
                     {state.errors.name.join(", ")}
                   </div>
                 )}
@@ -136,7 +136,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   }
                 />
                 {state?.errors?.code && (
-                  <div id="code-error" className="text-sm text-red-600">
+                  <div id="code-error" className="text-sm text-destructive">
                     {state.errors.code.join(", ")}
                   </div>
                 )}
@@ -158,7 +158,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   </SelectContent>
                 </Select>
                 {state?.errors?.cycle_id && (
-                  <div id="cycle_id-error" className="text-sm text-red-600">
+                  <div id="cycle_id-error" className="text-sm text-destructive">
                     {state.errors.cycle_id.join(", ")}
                   </div>
                 )}
@@ -198,7 +198,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   }
                 />
                 {state?.errors?.email && (
-                  <div id="email-error" className="text-sm text-red-600">
+                  <div id="email-error" className="text-sm text-destructive">
                     {state.errors.email.join(", ")}
                   </div>
                 )}
@@ -218,7 +218,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   }
                 />
                 {state?.errors?.phone && (
-                  <div id="phone-error" className="text-sm text-red-600">
+                  <div id="phone-error" className="text-sm text-destructive">
                     {state.errors.phone.join(", ")}
                   </div>
                 )}
@@ -237,7 +237,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   }
                 />
                 {state?.errors?.city && (
-                  <div id="city-error" className="text-sm text-red-600">
+                  <div id="city-error" className="text-sm text-destructive">
                     {state.errors.city.join(", ")}
                   </div>
                 )}
@@ -256,7 +256,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   }
                 />
                 {state?.errors?.address && (
-                  <div id="address-error" className="text-sm text-red-600">
+                  <div id="address-error" className="text-sm text-destructive">
                     {state.errors.address.join(", ")}
                   </div>
                 )}
@@ -292,7 +292,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   </SelectContent>
                 </Select>
                 {state?.errors?.state_id && (
-                  <div id="state_id-error" className="text-sm text-red-600">
+                  <div id="state_id-error" className="text-sm text-destructive">
                     {state.errors.state_id.join(", ")}
                   </div>
                 )}
@@ -314,7 +314,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                   </SelectContent>
                 </Select>
                 {state?.errors?.status && (
-                  <div id="status-error" className="text-sm text-red-600">
+                  <div id="status-error" className="text-sm text-destructive">
                     {state.errors.status.join(", ")}
                   </div>
                 )}
@@ -334,7 +334,7 @@ export function UpdateSchoolForm({ school }: UpdateSchoolFormProps) {
                 }
               />
               {state?.errors?.image_url && (
-                <div id="image_url-error" className="text-sm text-red-600">
+                <div id="image_url-error" className="text-sm text-destructive">
                   {state.errors.image_url.join(", ")}
                 </div>
               )}

@@ -97,13 +97,13 @@ export default async function UsersPage() {
 
       {/* Unlinked Users Alert */}
       {unlinkedUsers.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+        <Card className="border-secondary/30 bg-secondary/10">
           <CardHeader>
-            <CardTitle className="text-orange-800 dark:text-orange-200 flex items-center gap-2">
+            <CardTitle className="text-secondary-foreground flex items-center gap-2">
               <LinkIcon className="h-5 w-5" />
               Utilisateurs non liés ({unlinkedUsers.length})
             </CardTitle>
-            <CardDescription className="text-orange-700 dark:text-orange-300">
+            <CardDescription className="text-secondary-foreground/80">
               Ces utilisateurs ne sont pas encore associés à une école. Cliquez
               sur "Lier à une école" pour les associer.
             </CardDescription>
@@ -132,7 +132,7 @@ export default async function UsersPage() {
                 {!user.school_id && (
                   <Badge
                     variant="outline"
-                    className="text-orange-600 border-orange-300"
+                    className="text-secondary-foreground border-secondary"
                   >
                     Non lié
                   </Badge>

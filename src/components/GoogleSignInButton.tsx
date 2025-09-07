@@ -96,10 +96,8 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       onClick={handleClick}
       className={cn(
         // Styles de base pour bouton Google
-        "relative border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
-        "hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
-        "dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300",
-        "dark:hover:bg-gray-800 dark:hover:border-gray-600",
+        "relative border-2 border-border bg-background text-foreground hover:bg-accent",
+        "hover:border-border focus:border-ring focus:ring-2 focus:ring-ring/20",
         "transition-all duration-200 shadow-sm hover:shadow-md",
         // Styles pour mode icône uniquement
         iconOnly && "p-3 aspect-square",
@@ -111,8 +109,8 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
     >
       {/* Indicateur de chargement */}
       {isLoading && (
-        <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center rounded-md">
-          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-md">
+          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
@@ -140,12 +138,10 @@ export const SocialAuthDivider: React.FC<{
     className={cn("relative flex items-center justify-center py-4", className)}
   >
     <div className="absolute inset-0 flex items-center">
-      <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+      <div className="w-full border-t border-border" />
     </div>
-    <div className="relative bg-white dark:bg-gray-900 px-4">
-      <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-        {text}
-      </span>
+    <div className="relative bg-background px-4">
+      <span className="text-sm text-muted-foreground font-medium">{text}</span>
     </div>
   </div>
 );

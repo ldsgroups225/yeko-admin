@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default function AuthCodeErrorPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
-      <Card className="w-full max-w-lg shadow-xl border-0 bg-white/80 backdrop-blur-sm dark:bg-slate-950/80">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+      <Card className="w-full max-w-lg shadow-xl border-0 bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center space-y-6 pb-8">
           <div className="space-y-4">
             <div className="flex items-center justify-center">
-              <div className="rounded-full bg-orange-100 p-4 dark:bg-orange-900/20">
-                <AlertTriangleIcon className="size-8 text-orange-600 dark:text-orange-400" />
+              <div className="rounded-full bg-secondary/20 p-4">
+                <AlertTriangleIcon className="size-8 text-secondary-foreground" />
               </div>
             </div>
 
@@ -28,7 +28,7 @@ export default function AuthCodeErrorPage() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 space-y-3">
+          <div className="bg-muted/50 rounded-lg p-4 space-y-3">
             <h3 className="font-medium text-sm text-foreground">
               Que s'est-il passé ?
             </h3>
