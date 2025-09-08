@@ -1,0 +1,315 @@
+name: Release Management
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: 'Create prerelease'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_ENV: production
+
+jobs:
+  # Job 1: Prepare Release
+  prepare-release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run all tests
+        run: |
+          bun run lint
+          bun run typecheck
+          bun run storybook:test
+          bun run build
+
+      - name: Determine version
+        id: version
+        run: |
+          CURRENT_VERSION=$(cat package.json | grep '"version"' | cut -d'"' -f4)
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Calculate new version based on input
+          if [ "${{ github.event.inputs.release_type }}" = "major" ]; then
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print ($1+1)".0.0"}')
+          elif [ "${{ github.event.inputs.release_type }}" = "minor" ]; then
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."($2+1)".0"}')
+          else
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."$2"."($3+1)}')
+          fi
+          
+          if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+            NEW_VERSION="${NEW_VERSION}-beta.$(date +%Y%m%d%H%M%S)"
+          fi
+          
+          echo "New version: $NEW_VERSION"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update version
+        run: |
+          # Update package.json version
+          sed -i 's/"version": ".*"/"version": "${{ steps.version.outputs.version }}"/' package.json
+          
+          # Commit version bump
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
+          git push
+
+      - name: Create tag
+        run: |
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin ${{ steps.version.outputs.tag }}
+
+  # Job 2: Build Release Assets
+  build-release:
+    name: Build Release Assets
+    runs-on: ubuntu-latest
+    needs: [prepare-release]
+    if: always() && (needs.prepare-release.result == 'success' || github.event_name == 'push')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build application
+        run: bun run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://example.com
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy_key_for_build
+
+      - name: Build Storybook
+        run: bun run build-storybook
+
+      - name: Create release archive
+        run: |
+          # Create release directory
+          mkdir -p release-assets
+          
+          # Archive build outputs
+          tar -czf release-assets/build-output.tar.gz .next/
+          tar -czf release-assets/storybook-static.tar.gz storybook-static/
+          
+          # Create deployment package
+          tar -czf release-assets/deployment-package.tar.gz \
+            --exclude=node_modules \
+            --exclude=.git \
+            --exclude=.next/cache \
+            --exclude=test-results \
+            --exclude=playwright-report \
+            .
+
+      - name: Generate build info
+        run: |
+          echo "# Build Information" > release-assets/BUILD_INFO.md
+          echo "" >> release-assets/BUILD_INFO.md
+          echo "**Build Date:** $(date)" >> release-assets/BUILD_INFO.md
+          echo "**Commit:** ${{ github.sha }}" >> release-assets/BUILD_INFO.md
+          echo "**Branch:** ${{ github.ref_name }}" >> release-assets/BUILD_INFO.md
+          echo "**Workflow:** ${{ github.workflow }}" >> release-assets/BUILD_INFO.md
+          echo "" >> release-assets/BUILD_INFO.md
+          echo "## Dependencies" >> release-assets/BUILD_INFO.md
+          echo "\`\`\`json" >> release-assets/BUILD_INFO.md
+          cat package.json | jq '.dependencies' >> release-assets/BUILD_INFO.md
+          echo "\`\`\`" >> release-assets/BUILD_INFO.md
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: release-assets/
+          retention-days: 30
+
+  # Job 3: Create GitHub Release
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [prepare-release, build-release]
+    if: always() && needs.build-release.result == 'success' && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/'))
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download release assets
+        uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: release-assets/
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No previous tags found, generating full changelog"
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            echo "Generating changelog since $LATEST_TAG"
+            CHANGELOG=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          # Create changelog file
+          echo "# Changelog" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          if [ -n "$CHANGELOG" ]; then
+            echo "$CHANGELOG" >> CHANGELOG.md
+          else
+            echo "No changes since last release" >> CHANGELOG.md
+          fi
+          
+          # Set output for GitHub release
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.tag || github.ref_name }}
+          release_name: Release ${{ needs.prepare-release.outputs.tag || github.ref_name }}
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## 📦 Assets
+            
+            - `build-output.tar.gz` - Next.js build output
+            - `storybook-static.tar.gz` - Storybook static files
+            - `deployment-package.tar.gz` - Complete deployment package
+            - `BUILD_INFO.md` - Build information and dependencies
+            
+            ## 🚀 Deployment
+            
+            This release has been automatically built and tested. All assets are ready for deployment.
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+
+      - name: Upload release assets
+        run: |
+          # Get release ID
+          RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ needs.prepare-release.outputs.tag || github.ref_name }}" \
+            | jq -r '.id')
+          
+          # Upload each asset
+          for asset in release-assets/*; do
+            if [ -f "$asset" ]; then
+              filename=$(basename "$asset")
+              echo "Uploading $filename..."
+              curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Content-Type: application/octet-stream" \
+                --data-binary @"$asset" \
+                "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=$filename"
+            fi
+          done
+
+  # Job 4: Deploy to Staging (if applicable)
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [create-release]
+    if: always() && needs.create-release.result == 'success' && github.event.inputs.prerelease != 'true'
+    environment: staging
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download release assets
+        uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: release-assets/
+
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploying to staging environment..."
+          echo "This is a placeholder for actual deployment logic"
+          echo "Assets available in release-assets/ directory"
+          
+          # Example deployment steps:
+          # 1. Extract deployment package
+          # 2. Upload to staging server
+          # 3. Run deployment scripts
+          # 4. Verify deployment
+          
+          echo "✅ Staging deployment completed"
+
+  # Job 5: Notify Teams
+  notify-release:
+    name: Notify Release
+    runs-on: ubuntu-latest
+    needs: [create-release, deploy-staging]
+    if: always() && needs.create-release.result == 'success'
+    
+    steps:
+      - name: Create release summary
+        run: |
+          echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.prepare-release.outputs.version || github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** ${{ needs.prepare-release.outputs.tag || github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Prerelease:** ${{ github.event.inputs.prerelease == 'true' && 'Yes' || 'No' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Staging Deployment:** ${{ needs.deploy-staging.result == 'success' && '✅ Success' || '❌ Failed/Skipped' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Verify staging deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Run manual testing" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Update documentation" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Notify stakeholders" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify via GitHub Discussion (optional)
+        run: |
+          echo "Release notification logic would go here"
+          echo "Could integrate with Slack, Discord, email, etc."

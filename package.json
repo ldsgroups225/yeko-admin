@@ -32,7 +32,11 @@
     "visual:setup": "node scripts/visual-testing.js",
     "visual:check": "node scripts/visual-testing.js check",
     "visual:test": "node scripts/visual-testing.js test",
-    "visual:update": "node scripts/visual-testing.js update"
+    "visual:update": "node scripts/visual-testing.js update",
+    "lighthouse": "lhci autorun",
+    "lighthouse:collect": "lhci collect",
+    "lighthouse:assert": "lhci assert",
+    "lighthouse:upload": "lhci upload"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -92,6 +96,7 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@commitlint/prompt-cli": "^19.8.1",
+    "@lhci/cli": "^0.15.1",
     "@next/bundle-analyzer": "^15.5.2",
     "@playwright/test": "^1.55.0",
     "@spotlightjs/spotlight": "^3.0.2",

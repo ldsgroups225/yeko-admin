@@ -1,26 +1,250 @@
-# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit AI Code Review Configuration
+# https://docs.coderabbit.ai/guides/review-configuration
 
-# CodeRabbit is an AI-powered code reviewer that cuts review time and bugs in half
+# Language and framework specific settings
+language: typescript
+framework: nextjs
 
-language: en-US
-early_access: false
+# Review settings
 reviews:
-  profile: chill
-  request_changes_workflow: false
-  high_level_summary: true
-  poem: true
-  review_status: true
-  collapse_walkthrough: false
-  path_instructions:
-    - path: '**/*.{ts,tsx}'
-      instructions:
-        'Review the Typescript and React code for conformity with best practices in React, and Typescript. Highlight any deviations.'
-  auto_review:
-    enabled: true
-    ignore_title_keywords:
-      - WIP
-      - DO NOT MERGE
-      - DRAFT
-    drafts: false
+  # Enable automatic reviews
+  auto_review: true
+  
+  # Review scope
+  scope:
+    - "src/**/*"
+    - "tests/**/*"
+    - "docs/**/*"
+    - "scripts/**/*"
+    - ".github/**/*"
+    - "*.config.*"
+    - "*.json"
+    - "*.md"
+  
+  # Exclude patterns
+  exclude:
+    - "node_modules/**"
+    - ".next/**"
+    - "dist/**"
+    - "build/**"
+    - "coverage/**"
+    - "storybook-static/**"
+    - "playwright-report/**"
+    - "test-results/**"
+    - "*.log"
+    - "*.lock"
+  
+  # Review focus areas
+  focus:
+    - security
+    - performance
+    - accessibility
+    - best_practices
+    - code_quality
+    - testing
+    - documentation
+  
+  # Severity levels
+  severity:
+    security: high
+    performance: medium
+    accessibility: high
+    best_practices: medium
+    code_quality: medium
+    testing: medium
+    documentation: low
+  
+  # Skip reviews for specific conditions
+  skip:
+    - draft_pr: true
+    - wip_pr: true
+    - dependabot_pr: true
+    - merge_commit: true
+  
+  # Review triggers
+  triggers:
+    - pull_request
+    - push_to_main: false
+  
+  # Comment settings
+  comments:
+    # Maximum comments per review
+    max_comments: 25
+    # Minimum confidence threshold
+    min_confidence: 0.7
+    # Group related comments
+    group_similar: true
+    # Include code suggestions
+    include_suggestions: true
+
+# Chat settings
 chat:
-  auto_reply: true
+  # Enable chat functionality
+  enabled: true
+  
+  # Auto-respond to questions
+  auto_respond: false
+  
+  # Chat triggers
+  triggers:
+    - "@coderabbit"
+    - "/review"
+    - "/explain"
+    - "/fix"
+
+# Knowledge base
+knowledge:
+  # Project-specific context
+  project_type: "Next.js Admin Dashboard"
+  tech_stack:
+    - "Next.js 15"
+    - "React 19"
+    - "TypeScript"
+    - "Tailwind CSS"
+    - "Radix UI"
+    - "Supabase"
+    - "Sentry"
+    - "Storybook"
+    - "Playwright"
+    - "Vitest"
+  
+  # Coding standards
+  standards:
+    - "Use TypeScript strict mode"
+    - "Follow React best practices"
+    - "Implement proper error handling"
+    - "Write comprehensive tests"
+    - "Use semantic HTML"
+    - "Ensure accessibility compliance"
+    - "Optimize for performance"
+    - "Follow security best practices"
+  
+  # Architecture patterns
+  patterns:
+    - "Component-based architecture"
+    - "Server-side rendering"
+    - "API routes for backend logic"
+    - "Database integration with Supabase"
+    - "Error monitoring with Sentry"
+    - "Visual regression testing"
+    - "Continuous integration"
+
+# Custom rules
+rules:
+  # TypeScript specific
+  typescript:
+    - "Prefer explicit return types for functions"
+    - "Use strict null checks"
+    - "Avoid any type usage"
+    - "Use proper generic constraints"
+  
+  # React specific
+  react:
+    - "Use functional components with hooks"
+    - "Implement proper key props in lists"
+    - "Handle loading and error states"
+    - "Use proper dependency arrays in useEffect"
+    - "Implement proper cleanup in useEffect"
+  
+  # Next.js specific
+  nextjs:
+    - "Use proper metadata API for SEO"
+    - "Implement proper error boundaries"
+    - "Use dynamic imports for code splitting"
+    - "Optimize images with next/image"
+    - "Use proper caching strategies"
+  
+  # Security
+  security:
+    - "Validate all user inputs"
+    - "Use environment variables for secrets"
+    - "Implement proper authentication"
+    - "Sanitize data before database operations"
+    - "Use HTTPS in production"
+  
+  # Performance
+  performance:
+    - "Minimize bundle size"
+    - "Use proper caching"
+    - "Optimize database queries"
+    - "Implement proper loading states"
+    - "Use lazy loading where appropriate"
+  
+  # Accessibility
+  accessibility:
+    - "Use semantic HTML elements"
+    - "Provide proper ARIA labels"
+    - "Ensure keyboard navigation"
+    - "Maintain proper color contrast"
+    - "Include alt text for images"
+  
+  # Testing
+  testing:
+    - "Write unit tests for utilities"
+    - "Write integration tests for components"
+    - "Write E2E tests for critical flows"
+    - "Maintain good test coverage"
+    - "Use proper test descriptions"
+
+# Integration settings
+integrations:
+  github:
+    # PR settings
+    pr_comments: true
+    pr_reviews: true
+    pr_status_checks: false
+    
+    # Issue settings
+    create_issues: false
+    
+    # Webhook settings
+    webhooks:
+      - pull_request
+      - push
+  
+  # CI/CD integration
+  ci_cd:
+    # Skip review if CI fails
+    skip_on_ci_failure: true
+    
+    # Wait for CI before reviewing
+    wait_for_ci: false
+
+# Notification settings
+notifications:
+  # Email notifications
+  email: false
+  
+  # Slack notifications
+  slack: false
+  
+  # Discord notifications
+  discord: false
+
+# Advanced settings
+advanced:
+  # Model settings
+  model:
+    temperature: 0.3
+    max_tokens: 2000
+  
+  # Rate limiting
+  rate_limit:
+    requests_per_hour: 100
+    requests_per_day: 500
+  
+  # Caching
+  cache:
+    enabled: true
+    ttl: 3600 # 1 hour
+  
+  # Experimental features
+  experimental:
+    # Enable advanced code analysis
+    deep_analysis: true
+    
+    # Enable cross-file analysis
+    cross_file_analysis: true
+    
+    # Enable dependency analysis
+    dependency_analysis: true
