@@ -12,6 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ErrorBoundaryUtils } from "@/lib/error-logging";
+import { loggers } from "@/lib/logger";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -50,24 +52,21 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error details
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    // Enhanced error logging with structured data
+    const eventId = ErrorBoundaryUtils.logError(error, errorInfo, {
+      component: this.constructor.name,
+    });
 
-    // Send to Sentry with additional context
-    const eventId = Sentry.captureException(error, {
-      contexts: {
-        react: {
-          componentStack: errorInfo.componentStack,
-        },
-      },
-      tags: {
-        errorBoundary: true,
-        component: this.constructor.name,
-      },
-      extra: {
-        errorInfo,
-        props: this.props,
-      },
+    // Log to Better Stack
+    loggers.app.error(error, {
+      component: this.constructor.name,
+      errorMessage: error.message,
+      errorStack: error.stack,
+      componentStack: errorInfo.componentStack,
+      userAgent:
+        typeof window !== "undefined" ? window.navigator.userAgent : undefined,
+      url: typeof window !== "undefined" ? window.location.href : undefined,
+      timestamp: new Date().toISOString(),
     });
 
     this.setState({
