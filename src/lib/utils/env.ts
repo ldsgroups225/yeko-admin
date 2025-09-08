@@ -14,6 +14,11 @@ export const env = createEnv({
       .default("development"),
     RESEND_API_KEY: z.string().min(1),
     RESEND_FROM_EMAIL: z.email(),
+    // Better Stack logging configuration
+    BETTER_STACK_TOKEN: z.string().optional(),
+    BETTER_STACK_ENABLED: z.string().optional(),
+    BETTER_STACK_BATCH_SIZE: z.string().optional(),
+    BETTER_STACK_FLUSH_INTERVAL: z.string().optional(),
   },
   /*
    * Environment variables available on the client (and server).
@@ -41,5 +46,10 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    // Better Stack logging configuration
+    BETTER_STACK_TOKEN: process.env.BETTER_STACK_TOKEN,
+    BETTER_STACK_ENABLED: process.env.BETTER_STACK_ENABLED,
+    BETTER_STACK_BATCH_SIZE: process.env.BETTER_STACK_BATCH_SIZE,
+    BETTER_STACK_FLUSH_INTERVAL: process.env.BETTER_STACK_FLUSH_INTERVAL,
   },
 });
