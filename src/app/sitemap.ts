@@ -78,10 +78,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [...staticRoutes, ...protectedRoutes];
 }
 
-// Helper function for future dynamic route generation
+/**
+ * Helper function for future dynamic route generation
+ *
+ * To add dynamic routes (e.g., individual school or user pages):
+ * 1. Uncomment this function
+ * 2. Import your data service (e.g., from '../services/dataService')
+ * 3. Fetch the data and map to sitemap entries
+ * 4. Call this function in the main sitemap function
+ *
+ * Example usage:
+ * const dynamicRoutes = await generateDynamicRoutes(baseUrl)
+ * return [...staticRoutes, ...protectedRoutes, ...dynamicRoutes]
+ */
 // async function generateDynamicRoutes(baseUrl: string): Promise<MetadataRoute.Sitemap> {
 //   try {
-//     // This would fetch data from your database
+//     // Example: Fetch schools from database
+//     // const { getPublicSchools } = await import('../services/dataService')
 //     // const schools = await getPublicSchools()
 //     // const schoolRoutes = schools.map(school => ({
 //     //   url: `${baseUrl}/schools/${school.id}`,

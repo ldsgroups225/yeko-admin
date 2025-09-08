@@ -40,3 +40,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# storybook
+storybook-static/
+
+# chromatic
+build-storybook.log
+chromatic.log
