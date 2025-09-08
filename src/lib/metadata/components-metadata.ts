@@ -1,5 +1,5 @@
 // Auto-generated components metadata
-// Generated on: 2025-09-08T20:25:46.721Z
+// Generated on: 2025-09-08T21:13:33.256Z
 
 import type { ComponentMetadata } from "./metadata-types";
 

@@ -1,5 +1,5 @@
 // Auto-generated project metadata
-// Generated on: 2025-09-08T20:25:46.725Z
+// Generated on: 2025-09-08T21:13:33.259Z
 
 import type { ProjectMetadata } from "./metadata-types";
 
@@ -71,11 +71,6 @@ export const projectMetadata: ProjectMetadata = {
     "@next/bundle-analyzer",
     "@playwright/test",
     "@spotlightjs/spotlight",
-    "@storybook/addon-a11y",
-    "@storybook/addon-docs",
-    "@storybook/addon-vitest",
-    "@storybook/nextjs-vite",
-    "@storybook/test",
     "@t3-oss/env-nextjs",
     "@tailwindcss/postcss",
     "@types/node",
@@ -94,7 +89,6 @@ export const projectMetadata: ProjectMetadata = {
     "knip",
     "lefthook",
     "lint-staged",
-    "storybook",
     "tailwindcss",
     "tw-animate-css",
     "typescript",
@@ -104,14 +98,14 @@ export const projectMetadata: ProjectMetadata = {
   ],
   git: {
     branch: "main",
-    commit: "e82ffc57b6bb2f59fbc296bd16882dedb3ad478c",
-    shortCommit: "e82ffc5",
+    commit: "7a1acd226e986db91a1fcf5bb562775f6562f242",
+    shortCommit: "7a1acd2",
     lastCommit:
-      "e82ffc5 chore: update CI workflows and scripts for improved validation and error handling",
-    timestamp: "2025-09-08T20:25:46.674Z",
+      "7a1acd2 test: enhance ErrorBoundary tests with improved mocking and integration checks",
+    timestamp: "2025-09-08T21:13:33.223Z",
   },
   build: {
-    timestamp: "2025-09-08T20:25:46.725Z",
+    timestamp: "2025-09-08T21:13:33.259Z",
     environment: "development",
     nodeVersion: "v20.18.1",
   },
@@ -120,7 +114,7 @@ export const projectMetadata: ProjectMetadata = {
     totalRoutes: 13,
     totalApiRoutes: 1,
     totalComponents: 59,
-    totalSize: 820850,
+    totalSize: 824020,
   },
 };
 

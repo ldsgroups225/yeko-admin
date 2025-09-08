@@ -1,5 +1,5 @@
 // Auto-generated API metadata
-// Generated on: 2025-09-08T20:25:46.724Z
+// Generated on: 2025-09-08T21:13:33.259Z
 
 import type { RouteMetadata } from "./metadata-types";
 
