@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
+import { EStatus } from "@/types";
 
 type School = Database["public"]["Tables"]["schools"]["Row"];
 type User = Database["public"]["Tables"]["users"]["Row"];
@@ -17,22 +18,24 @@ export type UserWithSchool = User & {
   hasDirectorRole?: boolean;
 };
 
-export type DashboardStats = {
+type DashboardStatCards = {
   totalSchools: number;
   activeSchools: number;
   totalStudents: number;
   totalUsers: number;
-  recentSchools: Array<{
-    id: string;
-    name: string;
-    city: string;
-    studentCount: number;
-    status: string;
-  }>;
-  studentsPerSchool: Array<{
-    schoolName: string;
-    studentCount: number;
-  }>;
+};
+
+type RecentSchools = {
+  id: string;
+  name: string;
+  city: string;
+  studentCount: number;
+  status: string;
+};
+
+type StudentsPerSchool = {
+  schoolName: string;
+  studentCount: number;
 };
 
 // Schools data functions
@@ -209,30 +212,40 @@ export async function getUserById(id: string): Promise<UserWithSchool | null> {
 }
 
 // Dashboard stats function
-export async function getDashboardStats(): Promise<DashboardStats> {
+export async function getDashboardStats(): Promise<DashboardStatCards> {
   const supabase = await createClient();
 
-  // Get total schools
-  const { count: totalSchools } = await supabase
-    .from("schools")
-    .select("*", { count: "exact", head: true });
+  const [
+    // Get total schools, students, users
+    { data: allSchools, count: totalSchools },
+    { count: totalStudents },
+    { count: totalUsers },
+  ] = await Promise.all([
+    supabase
+      .from("schools")
+      .select("id, name,state_id", { count: "exact", head: false }),
+    supabase
+      .from("student_school_class")
+      .select("*", { count: "exact", head: true })
+      .eq("is_active", true),
+    supabase.from("users").select("*", { count: "exact", head: true }),
+  ]);
 
-  // Get active schools (assuming status = 'private' means active)
-  const { count: activeSchools } = await supabase
-    .from("schools")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "private");
+  const activeSchools = allSchools?.filter(
+    (school) => school.state_id === EStatus.ACTIVE,
+  );
 
-  // Get total students
-  const { count: totalStudents } = await supabase
-    .from("student_school_class")
-    .select("*", { count: "exact", head: true })
-    .eq("is_active", true);
+  return {
+    totalSchools: totalSchools || 0,
+    activeSchools: activeSchools?.length || 0,
+    totalStudents: totalStudents || 0,
+    totalUsers: totalUsers || 0,
+  };
+}
 
-  // Get total users
-  const { count: totalUsers } = await supabase
-    .from("users")
-    .select("*", { count: "exact", head: true });
+// Dashboard stats for recent schools
+export async function getRecentSchools(): Promise<RecentSchools[]> {
+  const supabase = await createClient();
 
   // Get recent schools (last 5)
   const { data: recentSchoolsData } = await supabase
@@ -259,7 +272,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     }),
   );
 
-  // Get students per school (top 5)
+  return recentSchools;
+}
+
+// Dashboard stats for students per school
+export async function getStudentsPerSchool(): Promise<StudentsPerSchool[]> {
+  const supabase = await createClient();
+
   const { data: allSchools } = await supabase
     .from("schools")
     .select("id, name");
@@ -270,7 +289,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         .from("student_school_class")
         .select("*", { count: "exact", head: true })
         .eq("school_id", school.id)
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .eq("enrollment_status", "accepted");
 
       return {
         schoolName: school.name,
@@ -284,34 +304,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     .sort((a, b) => b.studentCount - a.studentCount)
     .slice(0, 5);
 
-  return {
-    totalSchools: totalSchools || 0,
-    activeSchools: activeSchools || 0,
-    totalStudents: totalStudents || 0,
-    totalUsers: totalUsers || 0,
-    recentSchools,
-    studentsPerSchool: topSchoolsByStudents,
-  };
-}
-
-// Available schools for linking users
-export async function getAvailableSchools(): Promise<
-  Array<{ id: string; name: string; city: string }>
-> {
-  const supabase = await createClient();
-
-  const { data: schools, error } = await supabase
-    .from("schools")
-    .select("id, name, city")
-    .eq("status", "private")
-    .order("name");
-
-  if (error) {
-    console.error("Error fetching available schools:", error);
-    return [];
-  }
-
-  return schools || [];
+  return topSchoolsByStudents;
 }
 
 // Get users with specific roles (for headmaster assignment)
@@ -437,4 +430,20 @@ export async function getGrades(): Promise<
   }
 
   return grades || [];
+}
+
+export async function getAvailableSchools(): Promise<School[]> {
+  const supabase = await createClient();
+
+  const { data: schools, error } = await supabase
+    .from("schools")
+    .select("*")
+    .eq("state_id", EStatus.ACTIVE);
+
+  if (error) {
+    console.error("Error fetching available schools:", error);
+    return [];
+  }
+
+  return schools || [];
 }

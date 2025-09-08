@@ -1,7 +1,7 @@
 /**
  * Default placeholder text for when no valid name or email is provided.
  */
-const DEFAULT_PLACEHOLDER = 'Non renseigné'
+const DEFAULT_PLACEHOLDER = "Non renseigné";
 
 /**
  * Formats a person's full name with robust handling of edge cases and input validation.
@@ -24,34 +24,36 @@ export function formatFullName(
 ): string {
   // Input validation
   if (
-    (firstName !== null && typeof firstName !== 'string')
-    || (lastName !== null && typeof lastName !== 'string')
-    || (email !== undefined && email !== null && typeof email !== 'string')
+    (firstName !== null && typeof firstName !== "string") ||
+    (lastName !== null && typeof lastName !== "string") ||
+    (email !== undefined && email !== null && typeof email !== "string")
   ) {
-    throw new Error('Invalid input types. Expected string or null values.')
+    throw new Error("Invalid input types. Expected string or null values.");
   }
 
   // Sanitize inputs
-  const sanitizedFirstName = sanitizeString(firstName)
-  const sanitizedLastName = sanitizeString(lastName)
-  const sanitizedEmail = sanitizeString(email)
+  const sanitizedFirstName = sanitizeString(firstName);
+  const sanitizedLastName = sanitizeString(lastName);
+  const sanitizedEmail = sanitizeString(email);
 
   // Handle case when both names are empty/null
   if (!sanitizedFirstName && !sanitizedLastName) {
     if (sanitizedEmail) {
-      const username = extractUsername(sanitizedEmail)
+      const username = extractUsername(sanitizedEmail);
       // Remove numeric characters from username
-      const alphaUsername = username.replace(/\d/g, '')
-      return alphaUsername ? capitalizeFirstLetter(alphaUsername) : DEFAULT_PLACEHOLDER
+      const alphaUsername = username.replace(/\d/g, "");
+      return alphaUsername
+        ? capitalizeFirstLetter(alphaUsername)
+        : DEFAULT_PLACEHOLDER;
     }
-    return DEFAULT_PLACEHOLDER
+    return DEFAULT_PLACEHOLDER;
   }
 
   // Combine available name parts
   return [sanitizedFirstName, sanitizedLastName]
     .filter(Boolean)
     .map(capitalizeFirstLetter)
-    .join(' ')
+    .join(" ");
 }
 
 /**
@@ -61,7 +63,7 @@ export function formatFullName(
  * @returns {string} Sanitized string or empty string
  */
 function sanitizeString(str: string | null | undefined): string {
-  return str?.trim() || ''
+  return str?.trim() || "";
 }
 
 /**
@@ -71,8 +73,8 @@ function sanitizeString(str: string | null | undefined): string {
  * @returns {string} Username portion of email or empty string
  */
 function extractUsername(email: string): string {
-  const match = email.match(/^([^@]+)@/)
-  return match ? match[1] : ''
+  const match = email.match(/^([^@]+)@/);
+  return match ? match[1] : "";
 }
 
 /**
@@ -82,12 +84,12 @@ function extractUsername(email: string): string {
  * @returns {string} The formatted phone number. If the input cannot be formatted, returns the original phone number.
  */
 export function formatPhoneNumber(phoneNumber: string): string {
-  const cleaned = (`${phoneNumber}`).replace(/\D/g, '')
-  const match = cleaned.match(/^(\d{2})(\d{2})(\d{2})(\d{4})$/)
+  const cleaned = `${phoneNumber}`.replace(/\D/g, "");
+  const match = cleaned.match(/^(\d{2})(\d{2})(\d{2})(\d{4})$/);
   if (match) {
-    return `${match[1]} ${match[2]} ${match[3]} ${match[4]}`
+    return `${match[1]} ${match[2]} ${match[3]} ${match[4]}`;
   }
-  return phoneNumber
+  return phoneNumber;
 }
 
 /**
@@ -96,7 +98,7 @@ export function formatPhoneNumber(phoneNumber: string): string {
  * @returns {string} The capitalized text.
  */
 export function capitalizeFirstLetter(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1)
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /**
@@ -113,13 +115,13 @@ export function capitalizeFirstLetter(text: string): string {
  */
 export function getAvatarFromFullName(fullName: string): string {
   // Trim the input and split into parts
-  const nameParts = fullName.trim().split(/\s+/)
+  const nameParts = fullName.trim().split(/\s+/);
   if (nameParts.length === 0) {
-    return 'U'
+    return "U";
   }
   // Take the first part (considered as the first name)
-  const firstName = nameParts[0]
+  const firstName = nameParts[0];
   // Find the first alphabetic character
-  const firstLetter = firstName.match(/[A-Z]/i)?.[0].toUpperCase()
-  return firstLetter || 'U'
+  const firstLetter = firstName.match(/[A-Z]/i)?.[0].toUpperCase();
+  return firstLetter || "U";
 }

@@ -22,12 +22,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, formatFullName, generateId } from "@/lib/utils";
+import { cn, generateId } from "@/lib/utils";
 import {
   type AvailableHeadmaster,
   getAvailableHeadmastersClient,
 } from "@/services/clientDataService";
-import type { UserWithSchool } from "@/services/dataService";
 
 interface AssignHeadMasterProps {
   schoolId: string;

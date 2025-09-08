@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { ERole } from "@/types/role";
+import { ERole } from "@/types";
 
 type FormState = {
   message?: string;

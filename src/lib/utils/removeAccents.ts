@@ -19,6 +19,6 @@
  */
 export function removeAccents(str: string): string {
   return str
-    .normalize('NFD') // decompose combined letters into base + diacritics
-    .replace(/[\u0300-\u036F]/g, '') // strip all combining diacritical marks
+    .normalize("NFD") // decompose combined letters into base + diacritics
+    .replace(/[\u0300-\u036F]/g, ""); // strip all combining diacritical marks
 }

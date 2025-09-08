@@ -33,7 +33,7 @@ import { CookieNames } from "@/constants";
  */
 export async function setCookie(
   name: CookieNames,
-  value: any,
+  value: unknown,
   options?: CookieOptions,
 ): Promise<void> {
   try {

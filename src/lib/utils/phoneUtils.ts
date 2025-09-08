@@ -20,47 +20,45 @@
  * normalizeCIPhoneNumber('123') // returns null (too short)
  */
 export function normalizeCIPhoneNumber(phoneNumber: string): string | null {
-  if (!phoneNumber || typeof phoneNumber !== 'string') {
-    return null
+  if (!phoneNumber || typeof phoneNumber !== "string") {
+    return null;
   }
 
   // Clean the input: remove spaces, dashes, parentheses
-  let cleanedNumber = phoneNumber.trim().replace(/[\s\-()]/g, '')
+  let cleanedNumber = phoneNumber.trim().replace(/[\s\-()]/g, "");
 
   // Remove country code prefixes
-  if (cleanedNumber.startsWith('+225')) {
-    cleanedNumber = cleanedNumber.substring(4)
-  }
-  else if (cleanedNumber.startsWith('00225')) {
-    cleanedNumber = cleanedNumber.substring(5)
-  }
-  else if (cleanedNumber.startsWith('225') && cleanedNumber.length === 13) {
+  if (cleanedNumber.startsWith("+225")) {
+    cleanedNumber = cleanedNumber.substring(4);
+  } else if (cleanedNumber.startsWith("00225")) {
+    cleanedNumber = cleanedNumber.substring(5);
+  } else if (cleanedNumber.startsWith("225") && cleanedNumber.length === 13) {
     // Handle cases like '2250701020304'
-    cleanedNumber = cleanedNumber.substring(3)
+    cleanedNumber = cleanedNumber.substring(3);
   }
 
   // Validate: only digits allowed
   if (!/^\d+$/.test(cleanedNumber)) {
-    return null
+    return null;
   }
 
   // Validate: minimum 10 digits to avoid special numbers
   if (cleanedNumber.length < 10) {
-    return null
+    return null;
   }
 
   // For numbers longer than 10 digits, take the last 10
   if (cleanedNumber.length > 10) {
-    cleanedNumber = cleanedNumber.slice(-10)
+    cleanedNumber = cleanedNumber.slice(-10);
   }
 
   // Validate: must start with valid service indicators (0, 2 for mobile/fixed)
-  const firstDigit = cleanedNumber.charAt(0)
-  if (!['0', '2'].includes(firstDigit)) {
-    return null
+  const firstDigit = cleanedNumber.charAt(0);
+  if (!["0", "2"].includes(firstDigit)) {
+    return null;
   }
 
-  return cleanedNumber
+  return cleanedNumber;
 }
 
 /**
@@ -71,8 +69,12 @@ export function normalizeCIPhoneNumber(phoneNumber: string): string | null {
  * @returns True if it's a valid mobile number
  */
 export function isCIMobileNumber(phoneNumber: string): boolean {
-  const normalized = normalizeCIPhoneNumber(phoneNumber)
-  return normalized !== null && normalized.startsWith('0') && normalized.length === 10
+  const normalized = normalizeCIPhoneNumber(phoneNumber);
+  const isNotNull = normalized !== null;
+  const startsWith0 = !!normalized?.startsWith("0");
+  const lengthIs10 = normalized?.length === 10;
+
+  return isNotNull && startsWith0 && lengthIs10;
 }
 
 /**
@@ -83,8 +85,12 @@ export function isCIMobileNumber(phoneNumber: string): boolean {
  * @returns True if it's a valid fixed-line number
  */
 export function isCIFixedLineNumber(phoneNumber: string): boolean {
-  const normalized = normalizeCIPhoneNumber(phoneNumber)
-  return normalized !== null && normalized.startsWith('2') && normalized.length === 10
+  const normalized = normalizeCIPhoneNumber(phoneNumber);
+  const isNotNull = normalized !== null;
+  const startsWith2 = !!normalized?.startsWith("2");
+  const lengthIs10 = normalized?.length === 10;
+
+  return isNotNull && startsWith2 && lengthIs10;
 }
 
 /**
@@ -99,8 +105,8 @@ export function isCIFixedLineNumber(phoneNumber: string): boolean {
  */
 export function formatCIPhoneNumber(phoneNumber: string): string {
   if (!phoneNumber || phoneNumber.length !== 10) {
-    return phoneNumber
+    return phoneNumber;
   }
 
-  return `${phoneNumber.slice(0, 2)} ${phoneNumber.slice(2, 4)} ${phoneNumber.slice(4, 6)} ${phoneNumber.slice(6, 8)} ${phoneNumber.slice(8, 10)}`
+  return `${phoneNumber.slice(0, 2)} ${phoneNumber.slice(2, 4)} ${phoneNumber.slice(4, 6)} ${phoneNumber.slice(6, 8)} ${phoneNumber.slice(8, 10)}`;
 }

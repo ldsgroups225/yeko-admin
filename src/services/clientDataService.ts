@@ -3,7 +3,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { formatFullName } from "@/lib/utils";
 import { ERole } from "@/types";
-import type { UserWithSchool } from "./dataService";
 
 export type AvailableUsers = {
   id: string;

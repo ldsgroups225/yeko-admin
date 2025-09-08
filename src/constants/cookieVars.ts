@@ -3,10 +3,10 @@
  * Centralizing cookie names helps prevent typos and eases maintenance.
  */
 export enum CookieNames {
-  GRADES = 'grades',
-  SCHOOL_YEARS = 'schoolYears',
-  SUBJECTS = 'subjects',
-  USER = 'user',
+  GRADES = "grades",
+  SCHOOL_YEARS = "schoolYears",
+  SUBJECTS = "subjects",
+  USER = "user",
 }
 
 /**
@@ -15,23 +15,23 @@ export enum CookieNames {
  */
 export interface CookieOptions {
   /** Maximum age in seconds before the cookie expires */
-  maxAge?: number
+  maxAge?: number;
   /** A specific expiration date for the cookie */
-  expires?: Date
+  expires?: Date;
   /** The path where the cookie is accessible; defaults to '/' */
-  path?: string
+  path?: string;
   /** Domain that the cookie is valid for */
-  domain?: string
+  domain?: string;
   /** Marks the cookie to be used only over HTTPS */
-  secure?: boolean
+  secure?: boolean;
   /** Makes the cookie inaccessible to JavaScript (helps mitigate XSS) */
-  httpOnly?: boolean
+  httpOnly?: boolean;
   /** Controls cookie sending on cross-site requests */
-  sameSite?: 'lax' | 'strict' | 'none'
+  sameSite?: "lax" | "strict" | "none";
   /** Optional priority hint for the cookie */
-  priority?: 'low' | 'medium' | 'high'
+  priority?: "low" | "medium" | "high";
   /** Custom encoder function for the cookie value */
-  encode?: (value: string) => string
+  encode?: (value: string) => string;
   /** Experimental flag to indicate partitioned cookies */
-  partitioned?: boolean
+  partitioned?: boolean;
 }

@@ -24,13 +24,17 @@ import {
 } from "@/services/dataService";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function LinkUserPage({ params }: Props) {
-  const user = await getUserById(params.id);
-  const schools = await getAvailableSchools();
-  const grades = await getGrades();
+  const { id: userId } = await params;
+
+  const [user, schools, grades] = await Promise.all([
+    getUserById(userId),
+    getAvailableSchools(),
+    getGrades(),
+  ]);
 
   if (!user) {
     return (
