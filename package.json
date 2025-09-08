@@ -36,7 +36,13 @@
     "lighthouse": "lhci autorun",
     "lighthouse:collect": "lhci collect",
     "lighthouse:assert": "lhci assert",
-    "lighthouse:upload": "lhci upload"
+    "lighthouse:upload": "lhci upload",
+    "deps:check": "node scripts/dependabot-manager.js check",
+    "deps:analyze": "node scripts/dependabot-manager.js analyze",
+    "deps:outdated": "node scripts/dependabot-manager.js outdated",
+    "deps:security": "node scripts/dependabot-manager.js security",
+    "deps:report": "node scripts/dependabot-manager.js report",
+    "deps:validate": "node scripts/dependabot-manager.js validate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

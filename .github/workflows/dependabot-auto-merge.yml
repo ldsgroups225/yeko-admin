@@ -1,0 +1,389 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Ensure only one auto-merge workflow runs at a time
+concurrency:
+  group: dependabot-auto-merge-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Job 1: Validate Dependabot PR
+  validate-dependabot:
+    name: Validate Dependabot PR
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    
+    outputs:
+      auto-merge-eligible: ${{ steps.check-eligibility.outputs.eligible }}
+      update-type: ${{ steps.parse-pr.outputs.update-type }}
+      dependency-name: ${{ steps.parse-pr.outputs.dependency-name }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Parse Dependabot PR
+        id: parse-pr
+        run: |
+          # Extract dependency information from PR title
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+          
+          # Parse dependency name and update type
+          if [[ "$PR_TITLE" =~ ^(deps|deps-dev|ci)(\([^)]+\))?: [Bb]ump (.+) from .+ to .+ ]]; then
+            DEPENDENCY_NAME="${BASH_REMATCH[3]}"
+            PREFIX="${BASH_REMATCH[1]}"
+            
+            echo "dependency-name=$DEPENDENCY_NAME" >> $GITHUB_OUTPUT
+            echo "prefix=$PREFIX" >> $GITHUB_OUTPUT
+            
+            # Determine update type based on version change
+            if [[ "$PR_TITLE" =~ from\ ([0-9]+)\.([0-9]+)\.([0-9]+).*\ to\ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+              OLD_MAJOR="${BASH_REMATCH[1]}"
+              OLD_MINOR="${BASH_REMATCH[2]}"
+              OLD_PATCH="${BASH_REMATCH[3]}"
+              NEW_MAJOR="${BASH_REMATCH[4]}"
+              NEW_MINOR="${BASH_REMATCH[5]}"
+              NEW_PATCH="${BASH_REMATCH[6]}"
+              
+              if [ "$OLD_MAJOR" != "$NEW_MAJOR" ]; then
+                UPDATE_TYPE="major"
+              elif [ "$OLD_MINOR" != "$NEW_MINOR" ]; then
+                UPDATE_TYPE="minor"
+              else
+                UPDATE_TYPE="patch"
+              fi
+              
+              echo "update-type=$UPDATE_TYPE" >> $GITHUB_OUTPUT
+              echo "Update type: $UPDATE_TYPE ($OLD_MAJOR.$OLD_MINOR.$OLD_PATCH -> $NEW_MAJOR.$NEW_MINOR.$NEW_PATCH)"
+            else
+              echo "update-type=unknown" >> $GITHUB_OUTPUT
+              echo "Could not determine update type from title"
+            fi
+          else
+            echo "dependency-name=unknown" >> $GITHUB_OUTPUT
+            echo "update-type=unknown" >> $GITHUB_OUTPUT
+            echo "Could not parse PR title"
+          fi
+
+      - name: Check auto-merge eligibility
+        id: check-eligibility
+        run: |
+          DEPENDENCY_NAME="${{ steps.parse-pr.outputs.dependency-name }}"
+          UPDATE_TYPE="${{ steps.parse-pr.outputs.update-type }}"
+          PREFIX="${{ steps.parse-pr.outputs.prefix }}"
+          
+          echo "Checking eligibility for: $DEPENDENCY_NAME ($UPDATE_TYPE)"
+          
+          # Define safe dependencies for auto-merge
+          SAFE_PATCH_DEPENDENCIES=(
+            "@types/"
+            "@storybook/"
+            "@vitest/"
+            "@playwright/"
+            "@biomejs/"
+            "@commitlint/"
+            "@radix-ui/"
+            "lucide-react"
+            "class-variance-authority"
+            "clsx"
+            "tailwind"
+            "lint-staged"
+            "lefthook"
+            "commitizen"
+            "chromatic"
+            "checkly"
+          )
+          
+          SAFE_MINOR_DEPENDENCIES=(
+            "@types/"
+            "@storybook/"
+            "@vitest/"
+            "@playwright/"
+            "@biomejs/"
+            "@commitlint/"
+            "lint-staged"
+            "lefthook"
+            "commitizen"
+            "chromatic"
+            "checkly"
+          )
+          
+          # Critical dependencies that should never auto-merge
+          CRITICAL_DEPENDENCIES=(
+            "react"
+            "react-dom"
+            "next"
+            "@supabase/"
+            "@sentry/"
+          )
+          
+          ELIGIBLE="false"
+          
+          # Check if it's a critical dependency
+          for critical in "${CRITICAL_DEPENDENCIES[@]}"; do
+            if [[ "$DEPENDENCY_NAME" == *"$critical"* ]]; then
+              echo "❌ Critical dependency detected: $DEPENDENCY_NAME"
+              echo "eligible=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          done
+          
+          # Check GitHub Actions updates (always safe for minor/patch)
+          if [[ "$PREFIX" == "ci" && ("$UPDATE_TYPE" == "patch" || "$UPDATE_TYPE" == "minor") ]]; then
+            echo "✅ GitHub Actions patch/minor update: $DEPENDENCY_NAME"
+            ELIGIBLE="true"
+          fi
+          
+          # Check patch updates for safe dependencies
+          if [[ "$UPDATE_TYPE" == "patch" ]]; then
+            for safe in "${SAFE_PATCH_DEPENDENCIES[@]}"; do
+              if [[ "$DEPENDENCY_NAME" == *"$safe"* ]]; then
+                echo "✅ Safe patch update: $DEPENDENCY_NAME"
+                ELIGIBLE="true"
+                break
+              fi
+            done
+          fi
+          
+          # Check minor updates for very safe dependencies
+          if [[ "$UPDATE_TYPE" == "minor" ]]; then
+            for safe in "${SAFE_MINOR_DEPENDENCIES[@]}"; do
+              if [[ "$DEPENDENCY_NAME" == *"$safe"* ]]; then
+                echo "✅ Safe minor update: $DEPENDENCY_NAME"
+                ELIGIBLE="true"
+                break
+              fi
+            done
+          fi
+          
+          # Security updates are always eligible (if they pass tests)
+          if [[ "${{ github.event.pull_request.title }}" == *"security"* ]] || 
+             [[ "${{ github.event.pull_request.body }}" == *"security"* ]] ||
+             [[ "${{ github.event.pull_request.body }}" == *"vulnerability"* ]]; then
+            echo "✅ Security update detected: $DEPENDENCY_NAME"
+            ELIGIBLE="true"
+          fi
+          
+          echo "eligible=$ELIGIBLE" >> $GITHUB_OUTPUT
+          
+          if [[ "$ELIGIBLE" == "true" ]]; then
+            echo "🎯 PR is eligible for auto-merge"
+          else
+            echo "⏸️ PR requires manual review"
+          fi
+
+  # Job 2: Wait for CI to pass
+  wait-for-ci:
+    name: Wait for CI
+    runs-on: ubuntu-latest
+    needs: [validate-dependabot]
+    if: needs.validate-dependabot.outputs.auto-merge-eligible == 'true'
+    
+    steps:
+      - name: Wait for status checks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { number } = context.issue;
+            
+            console.log(`Waiting for status checks on PR #${number}`);
+            
+            // Wait up to 30 minutes for checks to complete
+            const maxWaitTime = 30 * 60 * 1000; // 30 minutes
+            const checkInterval = 30 * 1000; // 30 seconds
+            const startTime = Date.now();
+            
+            while (Date.now() - startTime < maxWaitTime) {
+              try {
+                // Get the latest commit SHA
+                const { data: pr } = await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: number
+                });
+                
+                const sha = pr.head.sha;
+                console.log(`Checking status for commit: ${sha}`);
+                
+                // Get status checks
+                const { data: statusChecks } = await github.rest.repos.getCombinedStatusForRef({
+                  owner,
+                  repo,
+                  ref: sha
+                });
+                
+                // Get check runs
+                const { data: checkRuns } = await github.rest.checks.listForRef({
+                  owner,
+                  repo,
+                  ref: sha
+                });
+                
+                console.log(`Status: ${statusChecks.state}`);
+                console.log(`Check runs: ${checkRuns.check_runs.length}`);
+                
+                // Check if all status checks are successful
+                const allStatusChecksPass = statusChecks.state === 'success' || statusChecks.statuses.length === 0;
+                
+                // Check if all check runs are successful
+                const allCheckRunsPass = checkRuns.check_runs.every(run => 
+                  run.status === 'completed' && run.conclusion === 'success'
+                );
+                
+                // Check if there are any pending checks
+                const hasPendingChecks = statusChecks.statuses.some(status => status.state === 'pending') ||
+                                       checkRuns.check_runs.some(run => run.status !== 'completed');
+                
+                if (allStatusChecksPass && allCheckRunsPass && !hasPendingChecks) {
+                  console.log('✅ All checks passed!');
+                  return;
+                }
+                
+                // Check for failures
+                const hasFailures = statusChecks.state === 'failure' ||
+                                  checkRuns.check_runs.some(run => 
+                                    run.status === 'completed' && run.conclusion === 'failure'
+                                  );
+                
+                if (hasFailures) {
+                  console.log('❌ Some checks failed - will not auto-merge');
+                  core.setFailed('CI checks failed');
+                  return;
+                }
+                
+                console.log('⏳ Waiting for checks to complete...');
+                await new Promise(resolve => setTimeout(resolve, checkInterval));
+                
+              } catch (error) {
+                console.error('Error checking status:', error);
+                await new Promise(resolve => setTimeout(resolve, checkInterval));
+              }
+            }
+            
+            console.log('⏰ Timeout waiting for checks to complete');
+            core.setFailed('Timeout waiting for CI checks');
+
+  # Job 3: Auto-merge the PR
+  auto-merge:
+    name: Auto-merge PR
+    runs-on: ubuntu-latest
+    needs: [validate-dependabot, wait-for-ci]
+    if: needs.validate-dependabot.outputs.auto-merge-eligible == 'true' && needs.wait-for-ci.result == 'success'
+    
+    steps:
+      - name: Enable auto-merge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { number } = context.issue;
+            
+            console.log(`Enabling auto-merge for PR #${number}`);
+            
+            try {
+              // Enable auto-merge with squash merge
+              await github.rest.pulls.createReview({
+                owner,
+                repo,
+                pull_number: number,
+                event: 'APPROVE',
+                body: '🤖 Auto-approving safe dependency update'
+              });
+              
+              // Enable auto-merge
+              await github.graphql(`
+                mutation($pullRequestId: ID!) {
+                  enablePullRequestAutoMerge(input: {
+                    pullRequestId: $pullRequestId,
+                    mergeMethod: SQUASH
+                  }) {
+                    pullRequest {
+                      autoMergeRequest {
+                        enabledAt
+                      }
+                    }
+                  }
+                }
+              `, {
+                pullRequestId: context.payload.pull_request.node_id
+              });
+              
+              console.log('✅ Auto-merge enabled successfully');
+              
+              // Add comment explaining the auto-merge
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: number,
+                body: `🤖 **Auto-merge enabled**
+                
+This dependency update has been automatically approved and will be merged when all checks pass.
+
+**Details:**
+- **Dependency:** ${{ needs.validate-dependabot.outputs.dependency-name }}
+- **Update type:** ${{ needs.validate-dependabot.outputs.update-type }}
+- **Reason:** Safe dependency update based on auto-merge rules
+
+The PR will be automatically squashed and merged once all required status checks are successful.`
+              });
+              
+            } catch (error) {
+              console.error('Error enabling auto-merge:', error);
+              core.setFailed(`Failed to enable auto-merge: ${error.message}`);
+            }
+
+  # Job 4: Notify if not eligible
+  notify-manual-review:
+    name: Notify Manual Review
+    runs-on: ubuntu-latest
+    needs: [validate-dependabot]
+    if: github.actor == 'dependabot[bot]' && needs.validate-dependabot.outputs.auto-merge-eligible == 'false'
+    
+    steps:
+      - name: Add manual review comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { number } = context.issue;
+            
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body: `👀 **Manual review required**
+              
+This dependency update requires manual review and cannot be auto-merged.
+
+**Details:**
+- **Dependency:** ${{ needs.validate-dependabot.outputs.dependency-name }}
+- **Update type:** ${{ needs.validate-dependabot.outputs.update-type }}
+- **Reason:** Critical dependency or major version update
+
+Please review the changes carefully before merging.
+
+**Review checklist:**
+- [ ] Check for breaking changes in the changelog
+- [ ] Verify compatibility with existing code
+- [ ] Run tests locally if needed
+- [ ] Review security implications`
+            });
+
+      - name: Add labels for manual review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { number } = context.issue;
+            
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: number,
+              labels: ['needs-review', 'manual-merge-required']
+            });

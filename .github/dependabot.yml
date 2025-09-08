@@ -1,0 +1,190 @@
+# Dependabot Configuration
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # NPM Dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    
+    # Security updates
+    open-pull-requests-limit: 10
+    
+    # Grouping strategy
+    groups:
+      # Group all patch updates together
+      patch-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+      
+      # Group React ecosystem updates
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@types/react*"
+          - "next"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Group UI library updates
+      ui-libraries:
+        patterns:
+          - "@radix-ui/*"
+          - "lucide-react"
+          - "class-variance-authority"
+          - "clsx"
+          - "tailwind*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Group testing tools
+      testing-tools:
+        patterns:
+          - "@playwright/*"
+          - "@storybook/*"
+          - "vitest*"
+          - "@vitest/*"
+          - "playwright"
+          - "chromatic"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Group development tools
+      dev-tools:
+        patterns:
+          - "@biomejs/*"
+          - "typescript"
+          - "@types/*"
+          - "lefthook"
+          - "lint-staged"
+          - "commitizen"
+          - "@commitlint/*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Group monitoring and logging
+      monitoring:
+        patterns:
+          - "@sentry/*"
+          - "@logtape/*"
+          - "checkly"
+        update-types:
+          - "minor"
+          - "patch"
+    
+    # Version constraints
+    ignore:
+      # Ignore major version updates for critical dependencies
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      
+      # Ignore specific problematic versions
+      - dependency-name: "@types/node"
+        versions: ["18.x", "19.x"] # Stick with Node 20+ types
+    
+    # Commit message configuration
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    
+    # Pull request configuration
+    pull-request-branch-name:
+      separator: "/"
+    
+    # Reviewers and assignees
+    reviewers:
+      - "dependabot[bot]"
+    
+    # Labels
+    labels:
+      - "dependencies"
+      - "automated"
+    
+    # Milestone (if using milestones)
+    # milestone: 1
+    
+    # Allow version updates for vulnerable dependencies
+    allow:
+      - dependency-type: "all"
+    
+    # Rebase strategy
+    rebase-strategy: "auto"
+
+  # GitHub Actions Dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "10:00"
+      timezone: "UTC"
+    
+    open-pull-requests-limit: 5
+    
+    # Group all GitHub Actions updates
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+    
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    
+    labels:
+      - "github-actions"
+      - "ci-cd"
+      - "automated"
+    
+    # Allow all updates for GitHub Actions
+    allow:
+      - dependency-type: "all"
+
+  # Docker Dependencies (if using Docker in the future)
+  # - package-ecosystem: "docker"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "wednesday"
+  #     time: "11:00"
+  #     timezone: "UTC"
+  #   
+  #   open-pull-requests-limit: 3
+  #   
+  #   commit-message:
+  #     prefix: "docker"
+  #     include: "scope"
+  #   
+  #   labels:
+  #     - "docker"
+  #     - "infrastructure"
+  #     - "automated"
+
+# Security-only updates for all ecosystems
+# These run immediately when vulnerabilities are detected
+registries: {}
+
+# Note: Security updates are automatically enabled and cannot be disabled
+# They will create PRs immediately when vulnerabilities are detected
