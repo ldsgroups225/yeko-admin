@@ -1,6 +1,5 @@
 import { School, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,12 +11,9 @@ import {
 } from "@/components/ui/card";
 import {
   DashboardStatCards,
-  DashboardStatCardsSkeleton,
   RecentSchool,
-  RecentSchoolSkeleton,
   StudentsPerSchool,
-  StudentsPerSchoolSkeleton,
-} from "./_components";
+} from "./_components/DynamicDashboardComponents";
 
 export default async function DashboardPage() {
   return (
@@ -29,9 +25,7 @@ export default async function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Suspense fallback={<DashboardStatCardsSkeleton />}>
-          <DashboardStatCards />
-        </Suspense>
+        <DashboardStatCards />
       </div>
 
       {/* Recent Schools and Top Schools */}
@@ -47,12 +41,12 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Suspense fallback={<RecentSchoolSkeleton />}>
-              <RecentSchool />
-            </Suspense>
+            <RecentSchool />
             <div className="mt-4">
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/schools">Voir toutes les écoles</Link>
+                <Link href="/schools" prefetch={true}>
+                  Voir toutes les écoles
+                </Link>
               </Button>
             </div>
           </CardContent>
@@ -69,9 +63,7 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Suspense fallback={<StudentsPerSchoolSkeleton />}>
-              <StudentsPerSchool />
-            </Suspense>
+            <StudentsPerSchool />
           </CardContent>
         </Card>
       </div>

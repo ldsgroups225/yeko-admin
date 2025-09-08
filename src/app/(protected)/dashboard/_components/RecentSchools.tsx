@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import { getRecentSchools } from "@/services/dataService";
+import { getRecentSchoolsWrapper } from "@/services/dataService";
 
 export async function RecentSchool() {
-  const recentSchools = await getRecentSchools();
+  const recentSchools = await getRecentSchoolsWrapper();
 
   return (
     <div className="space-y-4">

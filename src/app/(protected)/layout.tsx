@@ -129,6 +129,7 @@ export default function ProtectedLayout({ children }: Props) {
                   <SidebarMenuButton asChild>
                     <Link
                       href={item.href}
+                      prefetch={true}
                       className="flex items-center space-x-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-muted/80 hover:shadow-soft group"
                     >
                       <item.icon className="h-4 w-4 transition-colors group-hover:text-primary" />

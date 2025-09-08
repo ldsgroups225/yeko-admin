@@ -1,10 +1,10 @@
 import { Building2, GraduationCap, TrendingUp, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getDashboardStats } from "@/services/dataService";
+import { getDashboardStatsWrapper } from "@/services/dataService";
 
 export async function DashboardStatCards() {
   const { totalSchools, activeSchools, totalStudents, totalUsers } =
-    await getDashboardStats();
+    await getDashboardStatsWrapper();
 
   return (
     <>

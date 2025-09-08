@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
 import { EStatus } from "@/types";
@@ -211,101 +212,122 @@ export async function getUserById(id: string): Promise<UserWithSchool | null> {
   };
 }
 
-// Dashboard stats function
-export async function getDashboardStats(): Promise<DashboardStatCards> {
-  const supabase = await createClient();
+// Dashboard stats function with caching
+export const getDashboardStats = unstable_cache(
+  async (
+    supabase: Awaited<ReturnType<typeof createClient>>,
+  ): Promise<DashboardStatCards> => {
+    const [
+      // Get total schools, students, users
+      { data: allSchools, count: totalSchools },
+      { count: totalStudents },
+      { count: totalUsers },
+    ] = await Promise.all([
+      supabase
+        .from("schools")
+        .select("id, name,state_id", { count: "exact", head: false }),
+      supabase
+        .from("student_school_class")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true),
+      supabase.from("users").select("*", { count: "exact", head: true }),
+    ]);
 
-  const [
-    // Get total schools, students, users
-    { data: allSchools, count: totalSchools },
-    { count: totalStudents },
-    { count: totalUsers },
-  ] = await Promise.all([
-    supabase
+    const activeSchools = allSchools?.filter(
+      (school) => school.state_id === EStatus.ACTIVE,
+    );
+
+    return {
+      totalSchools: totalSchools || 0,
+      activeSchools: activeSchools?.length || 0,
+      totalStudents: totalStudents || 0,
+      totalUsers: totalUsers || 0,
+    };
+  },
+  ["dashboard-stats"],
+  {
+    revalidate: 300, // Cache for 5 minutes
+    tags: ["dashboard", "stats"],
+  },
+);
+
+// Dashboard stats for recent schools with caching
+export const getRecentSchools = unstable_cache(
+  async (
+    supabase: Awaited<ReturnType<typeof createClient>>,
+  ): Promise<RecentSchools[]> => {
+    // Get recent schools (last 5)
+    const { data: recentSchoolsData } = await supabase
       .from("schools")
-      .select("id, name,state_id", { count: "exact", head: false }),
-    supabase
-      .from("student_school_class")
-      .select("*", { count: "exact", head: true })
-      .eq("is_active", true),
-    supabase.from("users").select("*", { count: "exact", head: true }),
-  ]);
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5);
 
-  const activeSchools = allSchools?.filter(
-    (school) => school.state_id === EStatus.ACTIVE,
-  );
+    const recentSchools = await Promise.all(
+      (recentSchoolsData || []).map(async (school) => {
+        const { count: studentCount } = await supabase
+          .from("student_school_class")
+          .select("*", { count: "exact", head: true })
+          .eq("school_id", school.id)
+          .eq("is_active", true);
 
-  return {
-    totalSchools: totalSchools || 0,
-    activeSchools: activeSchools?.length || 0,
-    totalStudents: totalStudents || 0,
-    totalUsers: totalUsers || 0,
-  };
-}
+        return {
+          id: school.id,
+          name: school.name,
+          city: school.city,
+          studentCount: studentCount || 0,
+          status: school.status === "private" ? "active" : "pending",
+        };
+      }),
+    );
 
-// Dashboard stats for recent schools
-export async function getRecentSchools(): Promise<RecentSchools[]> {
-  const supabase = await createClient();
+    return recentSchools;
+  },
+  ["recent-schools"],
+  {
+    revalidate: 300, // Cache for 5 minutes
+    tags: ["dashboard", "schools"],
+  },
+);
 
-  // Get recent schools (last 5)
-  const { data: recentSchoolsData } = await supabase
-    .from("schools")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(5);
+// Dashboard stats for students per school with caching
+export const getStudentsPerSchool = unstable_cache(
+  async (
+    supabase: Awaited<ReturnType<typeof createClient>>,
+  ): Promise<StudentsPerSchool[]> => {
+    const { data: allSchools } = await supabase
+      .from("schools")
+      .select("id, name");
 
-  const recentSchools = await Promise.all(
-    (recentSchoolsData || []).map(async (school) => {
-      const { count: studentCount } = await supabase
-        .from("student_school_class")
-        .select("*", { count: "exact", head: true })
-        .eq("school_id", school.id)
-        .eq("is_active", true);
+    const studentsPerSchool = await Promise.all(
+      (allSchools || []).map(async (school) => {
+        const { count: studentCount } = await supabase
+          .from("student_school_class")
+          .select("*", { count: "exact", head: true })
+          .eq("school_id", school.id)
+          .eq("is_active", true)
+          .eq("enrollment_status", "accepted");
 
-      return {
-        id: school.id,
-        name: school.name,
-        city: school.city,
-        studentCount: studentCount || 0,
-        status: school.status === "private" ? "active" : "pending",
-      };
-    }),
-  );
+        return {
+          schoolName: school.name,
+          studentCount: studentCount || 0,
+        };
+      }),
+    );
 
-  return recentSchools;
-}
+    // Sort by student count and take top 5
+    const topSchoolsByStudents = studentsPerSchool
+      .sort((a, b) => b.studentCount - a.studentCount)
+      .slice(0, 5);
 
-// Dashboard stats for students per school
-export async function getStudentsPerSchool(): Promise<StudentsPerSchool[]> {
-  const supabase = await createClient();
-
-  const { data: allSchools } = await supabase
-    .from("schools")
-    .select("id, name");
-
-  const studentsPerSchool = await Promise.all(
-    (allSchools || []).map(async (school) => {
-      const { count: studentCount } = await supabase
-        .from("student_school_class")
-        .select("*", { count: "exact", head: true })
-        .eq("school_id", school.id)
-        .eq("is_active", true)
-        .eq("enrollment_status", "accepted");
-
-      return {
-        schoolName: school.name,
-        studentCount: studentCount || 0,
-      };
-    }),
-  );
-
-  // Sort by student count and take top 5
-  const topSchoolsByStudents = studentsPerSchool
-    .sort((a, b) => b.studentCount - a.studentCount)
-    .slice(0, 5);
-
-  return topSchoolsByStudents;
-}
+    return topSchoolsByStudents;
+  },
+  ["students-per-school"],
+  {
+    revalidate: 300, // Cache for 5 minutes
+    tags: ["dashboard", "schools"],
+  },
+);
 
 // Get users with specific roles (for headmaster assignment)
 export async function getUsersByRole(
@@ -446,4 +468,22 @@ export async function getAvailableSchools(): Promise<School[]> {
   }
 
   return schools || [];
+}
+
+// Wrapper functions that create the Supabase client and pass it to cached functions
+export async function getDashboardStatsWrapper(): Promise<DashboardStatCards> {
+  const supabase = await createClient();
+  return getDashboardStats(supabase);
+}
+
+export async function getRecentSchoolsWrapper(): Promise<RecentSchools[]> {
+  const supabase = await createClient();
+  return getRecentSchools(supabase);
+}
+
+export async function getStudentsPerSchoolWrapper(): Promise<
+  StudentsPerSchool[]
+> {
+  const supabase = await createClient();
+  return getStudentsPerSchool(supabase);
 }

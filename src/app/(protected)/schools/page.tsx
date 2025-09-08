@@ -95,13 +95,13 @@ export default async function SchoolsPage() {
 
               <div className="flex gap-2 pt-2">
                 <Button variant="outline" size="sm" className="flex-1" asChild>
-                  <Link href={`/schools/${school.id}`}>
+                  <Link href={`/schools/${school.id}`} prefetch={true}>
                     <Edit className="h-3 w-3 mr-1" />
                     Modifier
                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" className="flex-1" asChild>
-                  <Link href={`/schools/${school.id}/students`}>
+                  <Link href={`/schools/${school.id}/students`} prefetch={true}>
                     <Users className="h-3 w-3 mr-1" />
                     Étudiants
                   </Link>
@@ -128,7 +128,7 @@ export default async function SchoolsPage() {
               Commencez par ajouter votre première école à la plateforme.
             </p>
             <Button asChild>
-              <Link href="/schools/new">
+              <Link href="/schools/new" prefetch={true}>
                 <Plus className="h-4 w-4 mr-2" />
                 Créer une école
               </Link>

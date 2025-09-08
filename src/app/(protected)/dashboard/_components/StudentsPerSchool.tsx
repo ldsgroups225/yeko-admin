@@ -1,7 +1,7 @@
-import { getStudentsPerSchool } from "@/services/dataService";
+import { getStudentsPerSchoolWrapper } from "@/services/dataService";
 
 export async function StudentsPerSchool() {
-  const studentsPerSchool = await getStudentsPerSchool();
+  const studentsPerSchool = await getStudentsPerSchoolWrapper();
 
   return (
     <div className="space-y-4">
