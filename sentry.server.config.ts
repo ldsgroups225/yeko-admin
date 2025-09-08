@@ -27,15 +27,19 @@ Sentry.init({
     }
 
     // Add request context if available
-    if ((hint as any).request) {
-      const request = (hint as any).request;
+    if (hint && "request" in hint && hint.request) {
+      const request = hint.request as {
+        url?: string;
+        method?: string;
+        headers?: Record<string, string>;
+      };
       event.request = {
         url: request.url,
         method: request.method,
         headers: {
-          "user-agent": request.headers?.["user-agent"],
-          accept: request.headers?.accept,
-          "accept-language": request.headers?.["accept-language"],
+          "user-agent": request.headers?.["user-agent"] || "",
+          accept: request.headers?.accept || "",
+          "accept-language": request.headers?.["accept-language"] || "",
         },
       };
     }

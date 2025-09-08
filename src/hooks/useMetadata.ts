@@ -187,7 +187,7 @@ export function useSocialShare({
   url,
   title,
   description,
-  image,
+  image: _image,
 }: {
   url: string;
   title: string;

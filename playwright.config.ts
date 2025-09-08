@@ -24,6 +24,19 @@ export default defineConfig<ChromaticConfig>({
   expect: {
     // Set timeout for async expect matchers
     timeout: 20 * 1000,
+    // Configure visual comparison settings
+    toHaveScreenshot: {
+      // Threshold for pixel differences (0-1)
+      threshold: 0.2,
+      // Animation handling
+      animations: "disabled",
+      // Maximum allowed pixel difference
+      maxDiffPixels: 100,
+    },
+    toMatchSnapshot: {
+      threshold: 0.2,
+      maxDiffPixels: 100,
+    },
   },
 
   // Run your local dev server before starting the tests:
@@ -52,8 +65,17 @@ export default defineConfig<ChromaticConfig>({
     // Record videos when retrying the failed test.
     video: process.env.CI ? "retain-on-failure" : undefined,
 
+    // Screenshot settings for visual testing
+    screenshot: process.env.CI ? "only-on-failure" : "off",
+
     // Disable automatic screenshots at test completion when using Chromatic test fixture.
     disableAutoSnapshot: true,
+
+    // Ignore HTTPS errors for local development
+    ignoreHTTPSErrors: true,
+
+    // Set default viewport for consistent visual testing
+    viewport: { width: 1280, height: 720 },
   },
 
   projects: [

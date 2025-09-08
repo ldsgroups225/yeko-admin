@@ -23,7 +23,16 @@
     "chromatic:ci": "chromatic --exit-zero-on-changes --exit-once-uploaded",
     "chromatic:setup": "node scripts/chromatic-setup.js",
     "chromatic:check": "node scripts/chromatic-setup.js check",
-    "chromatic:test": "node scripts/chromatic-setup.js test"
+    "chromatic:test": "node scripts/chromatic-setup.js test",
+    "test:visual": "playwright test tests/visual/",
+    "test:visual:update": "playwright test tests/visual/ --update-snapshots",
+    "test:visual:debug": "playwright test tests/visual/ --debug",
+    "test:visual:headed": "playwright test tests/visual/ --headed",
+    "test:visual:report": "playwright show-report",
+    "visual:setup": "node scripts/visual-testing.js",
+    "visual:check": "node scripts/visual-testing.js check",
+    "visual:test": "node scripts/visual-testing.js test",
+    "visual:update": "node scripts/visual-testing.js update"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

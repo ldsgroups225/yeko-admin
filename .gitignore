@@ -47,3 +47,8 @@ storybook-static/
 # chromatic
 build-storybook.log
 chromatic.log
+
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/

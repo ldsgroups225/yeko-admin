@@ -54,19 +54,19 @@
   - Integrate structured data into page layouts
   - _Requirements: 7.2_
 
-- [ ] 10. Generate dynamic sitemap and robots.txt
+- [x] 10. Generate dynamic sitemap and robots.txt
   - Create app/sitemap.ts for dynamic sitemap generation
   - Implement app/robots.ts for search engine directives
   - Configure sitemap to include all public routes
   - _Requirements: 7.4, 7.5_
 
-- [ ] 11. Set up visual regression testing with Chromatic
+- [x] 11. Set up visual regression testing with Chromatic
   - Configure Chromatic project and authentication
   - Create GitHub Actions workflow for visual testing
   - Set up automatic baseline updates on main branch
   - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 12. Enhance Playwright with visual testing capabilities
+- [x] 12. Enhance Playwright with visual testing capabilities
   - Add screenshot comparison utilities to existing Playwright setup
   - Create visual regression tests for critical user journeys
   - Configure screenshot storage and comparison logic

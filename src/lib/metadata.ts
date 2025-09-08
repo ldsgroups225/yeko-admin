@@ -264,8 +264,8 @@ export function mergeMetadata(
   const mergedRobots =
     base.robots && override.robots
       ? {
-          ...(base.robots as Record<string, any>),
-          ...(override.robots as Record<string, any>),
+          ...(base.robots as Record<string, string | boolean>),
+          ...(override.robots as Record<string, string | boolean>),
         }
       : override.robots || base.robots;
 

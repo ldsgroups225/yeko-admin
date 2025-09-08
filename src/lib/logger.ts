@@ -1,13 +1,4 @@
-import { configure, getLogger } from "@logtape/logtape";
-
-// Log record interface
-interface LogRecord {
-  timestamp: string;
-  level: string;
-  message: string;
-  category: string;
-  properties?: Record<string, unknown>;
-}
+import { configure, getLogger, type LogRecord } from "@logtape/logtape";
 
 // Better Stack HTTP Transport
 class BetterStackTransport {
@@ -42,6 +33,7 @@ class BetterStackTransport {
       timestamp: record.timestamp,
       level: record.level,
       message: record.message,
+      rawMessage: record.rawMessage,
       category: record.category,
       properties: record.properties,
       // Add application context
@@ -116,7 +108,7 @@ class EnhancedConsoleTransport {
           properties ? `\n${properties}` : "",
         );
         break;
-      case "warn":
+      case "warning":
         console.warn(
           `\x1b[33m${logLine}\x1b[0m`,
           properties ? `\n${properties}` : "",
@@ -163,7 +155,7 @@ export async function configureLogger() {
 
   await configure({
     sinks: {
-      console: transports[0] as any, // Use the first transport (EnhancedConsoleTransport)
+      console: (record: LogRecord) => transports[0].log(record), // Use the first transport (EnhancedConsoleTransport)
     },
     filters: {},
     loggers: [

@@ -7,9 +7,9 @@
  * visual regression testing workflows.
  */
 
-const { execSync } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+const { execSync } = require("node:child_process");
+const fs = require("node:fs");
+const path = require("node:path");
 
 // Colors for console output
 const colors = {
@@ -64,7 +64,7 @@ function buildStorybook() {
   try {
     execSync("bun run build-storybook", { stdio: "inherit" });
     log("✅ Storybook build completed", colors.green);
-  } catch (error) {
+  } catch (_error) {
     log("❌ Storybook build failed", colors.red);
     process.exit(1);
   }
@@ -100,7 +100,7 @@ function runChromatic(options = {}) {
   try {
     execSync(command, { stdio: "inherit" });
     log("✅ Chromatic completed successfully", colors.green);
-  } catch (error) {
+  } catch (_error) {
     log("❌ Chromatic failed", colors.red);
     if (!options.exitZeroOnChanges) {
       process.exit(1);
