@@ -278,6 +278,9 @@ jobs:
     steps:
       - name: Enable auto-merge
         uses: actions/github-script@v7
+        env:
+          DEPENDENCY_NAME: ${{ needs.validate-dependabot.outputs.dependency-name }}
+          UPDATE_TYPE: ${{ needs.validate-dependabot.outputs.update-type }}
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -316,20 +319,19 @@ jobs:
               console.log('✅ Auto-merge enabled successfully');
               
               // Add comment explaining the auto-merge
+              const commentBody = '🤖 **Auto-merge enabled**\n\n' +
+                'This dependency update has been automatically approved and will be merged when all checks pass.\n\n' +
+                '**Details:**\n' +
+                '- **Dependency:** ' + process.env.DEPENDENCY_NAME + '\n' +
+                '- **Update type:** ' + process.env.UPDATE_TYPE + '\n' +
+                '- **Reason:** Safe dependency update based on auto-merge rules\n\n' +
+                'The PR will be automatically squashed and merged once all required status checks are successful.';
+              
               await github.rest.issues.createComment({
                 owner,
                 repo,
                 issue_number: number,
-                body: `🤖 **Auto-merge enabled**
-                
-This dependency update has been automatically approved and will be merged when all checks pass.
-
-**Details:**
-- **Dependency:** ${{ needs.validate-dependabot.outputs.dependency-name }}
-- **Update type:** ${{ needs.validate-dependabot.outputs.update-type }}
-- **Reason:** Safe dependency update based on auto-merge rules
-
-The PR will be automatically squashed and merged once all required status checks are successful.`
+                body: commentBody
               });
               
             } catch (error) {
@@ -347,31 +349,32 @@ The PR will be automatically squashed and merged once all required status checks
     steps:
       - name: Add manual review comment
         uses: actions/github-script@v7
+        env:
+          DEPENDENCY_NAME: ${{ needs.validate-dependabot.outputs.dependency-name }}
+          UPDATE_TYPE: ${{ needs.validate-dependabot.outputs.update-type }}
         with:
           script: |
             const { owner, repo } = context.repo;
             const { number } = context.issue;
             
+            const commentBody = '👀 **Manual review required**\n\n' +
+              'This dependency update requires manual review and cannot be auto-merged.\n\n' +
+              '**Details:**\n' +
+              '- **Dependency:** ' + process.env.DEPENDENCY_NAME + '\n' +
+              '- **Update type:** ' + process.env.UPDATE_TYPE + '\n' +
+              '- **Reason:** Critical dependency or major version update\n\n' +
+              'Please review the changes carefully before merging.\n\n' +
+              '**Review checklist:**\n' +
+              '- [ ] Check for breaking changes in the changelog\n' +
+              '- [ ] Verify compatibility with existing code\n' +
+              '- [ ] Run tests locally if needed\n' +
+              '- [ ] Review security implications';
+            
             await github.rest.issues.createComment({
               owner,
               repo,
               issue_number: number,
-              body: `👀 **Manual review required**
-              
-This dependency update requires manual review and cannot be auto-merged.
-
-**Details:**
-- **Dependency:** ${{ needs.validate-dependabot.outputs.dependency-name }}
-- **Update type:** ${{ needs.validate-dependabot.outputs.update-type }}
-- **Reason:** Critical dependency or major version update
-
-Please review the changes carefully before merging.
-
-**Review checklist:**
-- [ ] Check for breaking changes in the changelog
-- [ ] Verify compatibility with existing code
-- [ ] Run tests locally if needed
-- [ ] Review security implications`
+              body: commentBody
             });
 
       - name: Add labels for manual review

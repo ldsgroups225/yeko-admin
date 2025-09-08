@@ -1,11 +1,14 @@
 // Auto-generated project metadata
-// Generated on: 2025-09-08T19:44:53.613Z
+// Generated on: 2025-09-08T20:25:46.725Z
 
 import type { ProjectMetadata } from "./metadata-types";
 
 export const projectMetadata: ProjectMetadata = {
   name: "yeko-admin",
   version: "0.1.0",
+  description: undefined,
+  author: undefined,
+  license: undefined,
   dependencies: [
     "@hookform/resolvers",
     "@logtape/logtape",
@@ -101,14 +104,14 @@ export const projectMetadata: ProjectMetadata = {
   ],
   git: {
     branch: "main",
-    commit: "c3450762fa058da8724e33c14c67cec3b228a8ed",
-    shortCommit: "c345076",
+    commit: "e82ffc57b6bb2f59fbc296bd16882dedb3ad478c",
+    shortCommit: "e82ffc5",
     lastCommit:
-      "c345076 test: add ErrorBoundary component tests and update development tasks",
-    timestamp: "2025-09-08T19:44:53.582Z",
+      "e82ffc5 chore: update CI workflows and scripts for improved validation and error handling",
+    timestamp: "2025-09-08T20:25:46.674Z",
   },
   build: {
-    timestamp: "2025-09-08T19:44:53.612Z",
+    timestamp: "2025-09-08T20:25:46.725Z",
     environment: "development",
     nodeVersion: "v20.18.1",
   },
@@ -117,7 +120,7 @@ export const projectMetadata: ProjectMetadata = {
     totalRoutes: 13,
     totalApiRoutes: 1,
     totalComponents: 59,
-    totalSize: 822507,
+    totalSize: 820850,
   },
 };
 

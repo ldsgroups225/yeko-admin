@@ -1,5 +1,5 @@
 // Auto-generated components metadata
-// Generated on: 2025-09-08T19:44:53.611Z
+// Generated on: 2025-09-08T20:25:46.721Z
 
 import type { ComponentMetadata } from "./metadata-types";
 
@@ -36,8 +36,8 @@ export const components: ComponentMetadata[] = [
       "@/lib/logger",
       "@/lib/sentry-integration",
     ],
-    size: 14005,
-    lastModified: new Date("2025-09-08T18:49:17.999Z"),
+    size: 14006,
+    lastModified: new Date("2025-09-08T20:12:55.682Z"),
   },
   {
     name: "ErrorBoundaryExamples",

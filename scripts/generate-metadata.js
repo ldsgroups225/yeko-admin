@@ -47,6 +47,40 @@ function logWarning(message) {
   log(`⚠️  ${message}`, colors.yellow);
 }
 
+// Custom serialization function that handles Date objects properly
+function serializeWithDates(obj, indent = 0) {
+  const spaces = " ".repeat(indent);
+  const nextSpaces = " ".repeat(indent + 2);
+
+  if (obj === null) return "null";
+  if (obj === undefined) return "undefined";
+  if (typeof obj === "string") return `"${obj}"`;
+  if (typeof obj === "number" || typeof obj === "boolean") return String(obj);
+  if (obj instanceof Date) return `new Date("${obj.toISOString()}")`;
+
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) return "[]";
+    const items = obj
+      .map((item) => `${nextSpaces}${serializeWithDates(item, indent + 2)}`)
+      .join(",\n");
+    return `[\n${items}\n${spaces}]`;
+  }
+
+  if (typeof obj === "object") {
+    const entries = Object.entries(obj);
+    if (entries.length === 0) return "{}";
+    const items = entries
+      .map(([key, value]) => {
+        const serializedValue = serializeWithDates(value, indent + 2);
+        return `${nextSpaces}${key}: ${serializedValue}`;
+      })
+      .join(",\n");
+    return `{\n${items}\n${spaces}}`;
+  }
+
+  return JSON.stringify(obj);
+}
+
 // Utility functions
 function ensureDirectoryExists(dirPath) {
   if (!fs.existsSync(dirPath)) {
@@ -351,7 +385,7 @@ function generateComponentsMetadata(components) {
 
 import type { ComponentMetadata } from './metadata-types';
 
-export const components: ComponentMetadata[] = ${JSON.stringify(components, null, 2)};
+export const components: ComponentMetadata[] = ${serializeWithDates(components, 2)};
 
 export function findComponent(name: string): ComponentMetadata | undefined {
   return components.find(component => component.name === name);
@@ -418,7 +452,7 @@ function generateMainMetadata(
 
 import type { ProjectMetadata } from './metadata-types';
 
-export const projectMetadata: ProjectMetadata = ${JSON.stringify(metadata, null, 2)};
+export const projectMetadata: ProjectMetadata = ${serializeWithDates(metadata, 2)};
 
 export function getProjectInfo(): ProjectMetadata {
   return projectMetadata;
@@ -451,7 +485,7 @@ function generateApiMetadata(apiRoutes) {
 
 import type { RouteMetadata } from './metadata-types';
 
-export const apiEndpoints: RouteMetadata[] = ${JSON.stringify(apiRoutes, null, 2)};
+export const apiEndpoints: RouteMetadata[] = ${serializeWithDates(apiRoutes, 2)};
 
 export function getApiEndpoints(): RouteMetadata[] {
   return apiEndpoints;
