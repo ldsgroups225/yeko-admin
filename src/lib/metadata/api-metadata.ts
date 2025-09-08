@@ -21,7 +21,7 @@ export function findApiEndpoint(path: string): RouteMetadata | undefined {
   return apiEndpoints.find((endpoint) => endpoint.path === path);
 }
 
-export function getApiEndpointsByMethod(method: string): RouteMetadata[] {
+export function getApiEndpointsByMethod(_method: string): RouteMetadata[] {
   // This would need to be enhanced to parse actual HTTP methods from route files
   return apiEndpoints;
 }

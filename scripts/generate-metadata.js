@@ -63,7 +63,7 @@ function getFileStats(filePath) {
       modified: stats.mtime,
       created: stats.birthtime,
     };
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }
@@ -86,7 +86,7 @@ function getGitInfo() {
       lastCommit,
       timestamp: new Date().toISOString(),
     };
-  } catch (error) {
+  } catch (_error) {
     logWarning("Could not get git information");
     return {
       branch: "unknown",
@@ -110,7 +110,7 @@ function getPackageInfo() {
       dependencies: Object.keys(packageJson.dependencies || {}),
       devDependencies: Object.keys(packageJson.devDependencies || {}),
     };
-  } catch (error) {
+  } catch (_error) {
     logError("Could not read package.json");
     return null;
   }
@@ -147,7 +147,7 @@ function scanDirectory(dirPath, extensions = [".ts", ".tsx", ".js", ".jsx"]) {
           }
         }
       }
-    } catch (error) {
+    } catch (_error) {
       logWarning(`Could not scan directory: ${currentPath}`);
     }
   }

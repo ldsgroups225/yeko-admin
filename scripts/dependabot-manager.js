@@ -7,9 +7,9 @@
  * and provide insights into dependency management.
  */
 
-const { execSync } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+const { execSync } = require("node:child_process");
+const fs = require("node:fs");
+const path = require("node:path");
 
 // Colors for console output
 const colors = {
@@ -231,13 +231,13 @@ function generateDependabotReport() {
         stdio: "pipe",
       });
       if (outdated.trim()) {
-        report += "```\n" + outdated + "\n```\n\n";
+        report += `\`\`\`\n${outdated}\n\`\`\`\n\n`;
       } else {
         report += "All dependencies are up to date.\n\n";
       }
     } catch (error) {
       if (error.stdout) {
-        report += "```\n" + error.stdout + "\n```\n\n";
+        report += `\`\`\`\n${error.stdout}\n\`\`\`\n\n`;
       } else {
         report += "Could not check outdated dependencies.\n\n";
       }
@@ -248,7 +248,7 @@ function generateDependabotReport() {
     try {
       execSync("bun audit", { stdio: "pipe" });
       report += "No security vulnerabilities detected.\n\n";
-    } catch (error) {
+    } catch (_error) {
       report +=
         "Security vulnerabilities may be present. Run `bun audit` for details.\n\n";
     }

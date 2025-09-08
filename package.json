@@ -95,7 +95,8 @@
     "docs:serve": "node scripts/serve-docs.js",
     "release:prepare": "node scripts/prepare-release.js",
     "release:check": "node scripts/check-release.js",
-    "release:validate": "node scripts/validate-release.js"
+    "release:validate": "node scripts/validate-release.js",
+    "test:e2e": "playwright test --grep-invert 'visual'"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

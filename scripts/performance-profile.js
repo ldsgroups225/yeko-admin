@@ -33,7 +33,7 @@ function logInfo(message) {
   log(`ℹ️  ${message}`, colors.blue);
 }
 
-function logWarning(message) {
+function _logWarning(message) {
   log(`⚠️  ${message}`, colors.yellow);
 }
 
@@ -131,7 +131,7 @@ function profileBuild() {
   }
 }
 
-function profileRuntime() {
+function _profileRuntime() {
   log("⚡ Profiling runtime performance...", colors.bright);
 
   return new Promise((resolve) => {
@@ -429,7 +429,7 @@ function getBundleSizeInfo() {
       cssSize,
       imageSize,
     };
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }
@@ -462,7 +462,7 @@ function generateRecommendations(profiles) {
 
   // Analyze build performance
   const buildProfile = profiles.find((p) => p.type === "build");
-  if (buildProfile && buildProfile.success) {
+  if (buildProfile?.success) {
     if (buildProfile.duration > 60000) {
       // More than 1 minute
       recommendations.push({
@@ -476,7 +476,7 @@ function generateRecommendations(profiles) {
 
   // Analyze memory usage
   const memoryProfile = profiles.find((p) => p.type === "memory");
-  if (memoryProfile && memoryProfile.success) {
+  if (memoryProfile?.success) {
     const heapUsed = memoryProfile.memoryAfter.heapUsed / 1024 / 1024; // MB
     if (heapUsed > 500) {
       // More than 500MB
@@ -490,7 +490,7 @@ function generateRecommendations(profiles) {
 
   // Analyze bundle size
   const bundleProfile = profiles.find((p) => p.type === "bundle");
-  if (bundleProfile && bundleProfile.success && bundleProfile.bundleInfo) {
+  if (bundleProfile?.success && bundleProfile.bundleInfo) {
     const totalSize = bundleProfile.bundleInfo.totalSize / 1024 / 1024; // MB
     if (totalSize > 10) {
       // More than 10MB

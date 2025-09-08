@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("node:fs");
-const path = require("node:path");
+const _path = require("node:path");
 const { execSync } = require("node:child_process");
 
 // Colors for console output
@@ -96,7 +96,7 @@ function validateEnvironmentVariables(results) {
   if (results.required.NEXT_PUBLIC_APP_URL?.value) {
     try {
       new URL(results.required.NEXT_PUBLIC_APP_URL.value);
-    } catch (error) {
+    } catch (_error) {
       results.invalid.push("NEXT_PUBLIC_APP_URL");
       results.required.NEXT_PUBLIC_APP_URL.status = "invalid";
     }
@@ -115,7 +115,7 @@ function validateEnvironmentVariables(results) {
   if (results.optional.NEXTAUTH_URL?.value) {
     try {
       new URL(results.optional.NEXTAUTH_URL.value);
-    } catch (error) {
+    } catch (_error) {
       results.invalid.push("NEXTAUTH_URL");
       results.optional.NEXTAUTH_URL.status = "invalid";
     }
@@ -165,7 +165,7 @@ function checkNodeEnvironment() {
   log("🟢 Checking Node.js environment...", colors.bright);
 
   const nodeVersion = process.version;
-  const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0]);
+  const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0], 10);
   const platform = process.platform;
   const arch = process.arch;
 
@@ -194,7 +194,7 @@ function checkPackageManager() {
     execSync("bun --version", { stdio: "pipe" });
     results.bun = true;
     results.active = "bun";
-  } catch (error) {
+  } catch (_error) {
     // Bun not available
   }
 
@@ -202,7 +202,7 @@ function checkPackageManager() {
     execSync("npm --version", { stdio: "pipe" });
     results.npm = true;
     if (!results.active) results.active = "npm";
-  } catch (error) {
+  } catch (_error) {
     // npm not available
   }
 
@@ -210,7 +210,7 @@ function checkPackageManager() {
     execSync("yarn --version", { stdio: "pipe" });
     results.yarn = true;
     if (!results.active) results.active = "yarn";
-  } catch (error) {
+  } catch (_error) {
     // yarn not available
   }
 

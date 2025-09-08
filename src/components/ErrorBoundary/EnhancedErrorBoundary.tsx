@@ -287,7 +287,7 @@ function DefaultErrorFallback({
   componentName,
   errorHistory,
 }: ErrorFallbackProps) {
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, _setShowDetails] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
 
   const handleReportFeedback = async () => {

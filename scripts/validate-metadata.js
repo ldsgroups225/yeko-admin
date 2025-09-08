@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("node:fs");
-const path = require("node:path");
+const _path = require("node:path");
 
 // Colors for console output
 const colors = {
@@ -31,7 +31,7 @@ function logInfo(message) {
   log(`ℹ️  ${message}`, colors.blue);
 }
 
-function logWarning(message) {
+function _logWarning(message) {
   log(`⚠️  ${message}`, colors.yellow);
 }
 
@@ -287,7 +287,7 @@ function validateProjectMetadata() {
     }
 
     // Check build timestamp
-    if (metadata.build && metadata.build.timestamp) {
+    if (metadata.build?.timestamp) {
       const buildTime = new Date(metadata.build.timestamp);
       const now = new Date();
       const diffHours = (now - buildTime) / (1000 * 60 * 60);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("node:fs");
-const path = require("node:path");
+const _path = require("node:path");
 const { execSync } = require("node:child_process");
 
 // Colors for console output
@@ -120,7 +120,7 @@ const SETUP_STEPS = [
 
 function checkNodeVersion() {
   const nodeVersion = process.version;
-  const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0]);
+  const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0], 10);
 
   if (majorVersion < 18) {
     throw new Error(
@@ -138,13 +138,13 @@ function checkPackageManager() {
     execSync("bun --version", { stdio: "pipe" });
     logSuccess("Bun package manager detected");
     return { packageManager: "bun" };
-  } catch (error) {
+  } catch (_error) {
     try {
       // Check if npm is available
       execSync("npm --version", { stdio: "pipe" });
       logWarning("Bun not found, using npm instead");
       return { packageManager: "npm" };
-    } catch (npmError) {
+    } catch (_npmError) {
       throw new Error("Neither Bun nor npm package manager found");
     }
   }
@@ -156,13 +156,13 @@ function installDependencies() {
     execSync("bun install", { stdio: "inherit" });
     logSuccess("Dependencies installed successfully");
     return { installed: true };
-  } catch (error) {
+  } catch (_error) {
     logWarning("Bun install failed, trying npm...");
     try {
       execSync("npm install", { stdio: "inherit" });
       logSuccess("Dependencies installed with npm");
       return { installed: true, usedNpm: true };
-    } catch (npmError) {
+    } catch (_npmError) {
       throw new Error("Failed to install dependencies");
     }
   }
@@ -272,7 +272,7 @@ function setupGitHooks() {
     execSync("npx lefthook install", { stdio: "inherit" });
     logSuccess("Git hooks installed successfully");
     return { hooksInstalled: true };
-  } catch (error) {
+  } catch (_error) {
     logWarning(
       "Could not install Git hooks. Make sure lefthook is configured properly.",
     );

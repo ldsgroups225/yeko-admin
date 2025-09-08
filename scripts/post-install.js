@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("node:fs");
-const path = require("node:path");
+const _path = require("node:path");
 const { execSync } = require("node:child_process");
 
 // Colors for console output
@@ -101,7 +101,7 @@ function validateEnvironment() {
   try {
     // Check Node.js version
     const nodeVersion = process.version;
-    const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0]);
+    const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0], 10);
 
     if (majorVersion < 18) {
       logWarning(

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("node:fs");
-const path = require("node:path");
+const _path = require("node:path");
 const { execSync } = require("node:child_process");
 const os = require("node:os");
 
@@ -29,7 +29,7 @@ function logError(message) {
   log(`❌ ${message}`, colors.red);
 }
 
-function logInfo(message) {
+function _logInfo(message) {
   log(`ℹ️  ${message}`, colors.blue);
 }
 
@@ -81,7 +81,7 @@ const HEALTH_CHECKS = {
 
 function checkNodeVersion() {
   const nodeVersion = process.version;
-  const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0]);
+  const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0], 10);
 
   if (majorVersion < 18) {
     return {
@@ -106,7 +106,7 @@ function checkPackageManager() {
       message: "Bun package manager detected",
       details: { packageManager: "bun" },
     };
-  } catch (error) {
+  } catch (_error) {
     try {
       execSync("npm --version", { stdio: "pipe" });
       return {
@@ -163,7 +163,7 @@ function checkMemoryUsage() {
 
 function checkDiskSpace() {
   try {
-    const stats = fs.statSync(".");
+    const _stats = fs.statSync(".");
     // This is a simplified check - in a real implementation, you'd use a library like 'diskusage'
     return {
       status: "success",
