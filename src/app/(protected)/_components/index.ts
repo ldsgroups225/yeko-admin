@@ -1,3 +1,3 @@
-export * from "./NavbarActionButton";
+export * from "../../../components/NavbarActionButton";
 export * from "./NavbarTitle";
 export * from "./UserButton";

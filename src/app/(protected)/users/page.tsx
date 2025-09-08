@@ -8,6 +8,8 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { Header } from "@/components/Header";
+import { NavbarActionButton } from "@/components/NavbarActionButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { getUsers } from "@/services/dataService";
 
 const roleLabels = {
@@ -48,15 +49,11 @@ export default async function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          Gestion des utilisateurs
-        </h1>
-        <p className="text-muted-foreground">
-          {users.length} utilisateurs • {unlinkedUsers.length} non liés à une
-          école
-        </p>
-      </div>
+      <Header
+        title="Gestion des utilisateurs"
+        description={`${users.length} utilisateurs • ${unlinkedUsers.length} non liés à une école`}
+        trailing={<NavbarActionButton />}
+      />
 
       {/* Search and Filters */}
       <Card>

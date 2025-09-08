@@ -1,5 +1,7 @@
 import { Building2, Edit, MapPin, Plus, Search, Users } from "lucide-react";
 import Link from "next/link";
+import { Header } from "@/components/Header";
+import { NavbarActionButton } from "@/components/NavbarActionButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
 import { getSchools } from "@/services/dataService";
 import { AssignHeadMasterWrapper } from "./_components";
 
@@ -24,15 +25,11 @@ export default async function SchoolsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          Gestion des écoles
-        </h1>
-        <p className="text-muted-foreground">
-          {schools.length} écoles • {totalStudents.toLocaleString()} étudiants
-          au total
-        </p>
-      </div>
+      <Header
+        title="Gestion des écoles"
+        description={`${schools.length} écoles • ${totalStudents.toLocaleString()} étudiants au total`}
+        trailing={<NavbarActionButton />}
+      />
 
       {/* Search and Filters */}
       <Card>

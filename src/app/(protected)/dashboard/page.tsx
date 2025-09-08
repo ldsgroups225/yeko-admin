@@ -6,6 +6,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { Header } from "@/components/Header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import { getDashboardStats } from "@/services/dataService";
 
 export default async function DashboardPage() {
@@ -23,12 +23,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Tableau de bord</h1>
-        <p className="text-muted-foreground">
-          Vue d'ensemble de votre plateforme de gestion scolaire
-        </p>
-      </div>
+      <Header
+        title="Tableau de bord"
+        description="Vue d'ensemble de votre plateforme de gestion scolaire"
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { sidebarItems } from "@/constants";
 import { generateId } from "@/lib/utils";
-import { NavbarActionButton, NavbarTitle, UserButton } from "./_components";
+import { UserButton } from "./_components";
 
 interface Props {
   children: React.ReactNode;
@@ -155,12 +155,9 @@ export default function ProtectedLayout({ children }: Props) {
 
         <div className="flex-1 flex flex-col relative z-10">
           <header className="border-b border-border/50 bg-card/80 backdrop-blur-xl shadow-soft supports-[backdrop-filter]:bg-card/60">
-            <div className="flex h-16 items-center px-4 lg:px-6">
+            <div className="md:hidden flex h-16 items-center px-4 lg:px-6">
               <SidebarTrigger className="md:hidden" />
-              <NavbarTitle />
-
               <div className="flex-1" />
-              <NavbarActionButton />
             </div>
           </header>
 
