@@ -1,12 +1,21 @@
 import { configure, getLogger } from "@logtape/logtape";
 
+// Log record interface
+interface LogRecord {
+  timestamp: string;
+  level: string;
+  message: string;
+  category: string;
+  properties?: Record<string, unknown>;
+}
+
 // Better Stack HTTP Transport
 class BetterStackTransport {
   private readonly url: string;
   private readonly token: string;
   private readonly batchSize: number;
   private readonly flushInterval: number;
-  private batch: any[] = [];
+  private batch: LogRecord[] = [];
   private timer: NodeJS.Timeout | null = null;
 
   constructor(options: {
@@ -20,7 +29,7 @@ class BetterStackTransport {
     this.flushInterval = options.flushInterval || 5000;
   }
 
-  log(record: any) {
+  log(record: LogRecord) {
     // Only send logs in production or when explicitly enabled
     if (
       process.env.NODE_ENV !== "production" &&
@@ -87,7 +96,7 @@ class BetterStackTransport {
 
 // Console transport with enhanced formatting
 class EnhancedConsoleTransport {
-  log(record: any) {
+  log(record: LogRecord) {
     const timestamp = new Date(record.timestamp).toISOString();
     const level = record.level.toUpperCase().padEnd(5);
     const category = record.category ? `[${record.category}]` : "";
@@ -133,7 +142,7 @@ class EnhancedConsoleTransport {
 
 // Configure LogTape
 export async function configureLogger() {
-  const transports: any[] = [
+  const transports: (BetterStackTransport | EnhancedConsoleTransport)[] = [
     // Always include console transport
     new EnhancedConsoleTransport(),
   ];
@@ -143,9 +152,10 @@ export async function configureLogger() {
     transports.push(
       new BetterStackTransport({
         token: process.env.BETTER_STACK_TOKEN,
-        batchSize: parseInt(process.env.BETTER_STACK_BATCH_SIZE || "10"),
+        batchSize: parseInt(process.env.BETTER_STACK_BATCH_SIZE || "10", 10),
         flushInterval: parseInt(
           process.env.BETTER_STACK_FLUSH_INTERVAL || "5000",
+          10,
         ),
       }),
     );
@@ -153,7 +163,7 @@ export async function configureLogger() {
 
   await configure({
     sinks: {
-      console: transports[0], // Use the first transport (EnhancedConsoleTransport)
+      console: transports[0] as any, // Use the first transport (EnhancedConsoleTransport)
     },
     filters: {},
     loggers: [
@@ -182,11 +192,11 @@ export const errorLogger = getLogger("error");
 export const loggers = {
   // Application events
   app: {
-    startup: (properties?: Record<string, any>) =>
+    startup: (properties?: Record<string, unknown>) =>
       logger.info("Application started", properties),
-    shutdown: (properties?: Record<string, any>) =>
+    shutdown: (properties?: Record<string, unknown>) =>
       logger.info("Application shutdown", properties),
-    error: (error: Error, properties?: Record<string, any>) =>
+    error: (error: Error, properties?: Record<string, unknown>) =>
       errorLogger.error("Application error", {
         error: error.message,
         stack: error.stack,
@@ -196,29 +206,32 @@ export const loggers = {
 
   // Authentication events
   auth: {
-    login: (userId: string, properties?: Record<string, any>) =>
+    login: (userId: string, properties?: Record<string, unknown>) =>
       authLogger.info("User login", { userId, ...properties }),
-    logout: (userId: string, properties?: Record<string, any>) =>
+    logout: (userId: string, properties?: Record<string, unknown>) =>
       authLogger.info("User logout", { userId, ...properties }),
     loginFailed: (
       email: string,
       reason: string,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) => authLogger.warn("Login failed", { email, reason, ...properties }),
-    sessionExpired: (userId: string, properties?: Record<string, any>) =>
+    sessionExpired: (userId: string, properties?: Record<string, unknown>) =>
       authLogger.info("Session expired", { userId, ...properties }),
   },
 
   // API events
   api: {
-    request: (method: string, path: string, properties?: Record<string, any>) =>
-      apiLogger.info("API request", { method, path, ...properties }),
+    request: (
+      method: string,
+      path: string,
+      properties?: Record<string, unknown>,
+    ) => apiLogger.info("API request", { method, path, ...properties }),
     response: (
       method: string,
       path: string,
       status: number,
       duration: number,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) =>
       apiLogger.info("API response", {
         method,
@@ -231,7 +244,7 @@ export const loggers = {
       method: string,
       path: string,
       error: Error,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) =>
       apiLogger.error("API error", {
         method,
@@ -247,9 +260,13 @@ export const loggers = {
     query: (
       query: string,
       duration: number,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) => dbLogger.debug("Database query", { query, duration, ...properties }),
-    error: (query: string, error: Error, properties?: Record<string, any>) =>
+    error: (
+      query: string,
+      error: Error,
+      properties?: Record<string, unknown>,
+    ) =>
       dbLogger.error("Database error", {
         query,
         error: error.message,
@@ -258,7 +275,7 @@ export const loggers = {
       }),
     connection: (
       event: "connected" | "disconnected",
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) => dbLogger.info(`Database ${event}`, properties),
   },
 
@@ -267,12 +284,12 @@ export const loggers = {
     interaction: (
       component: string,
       action: string,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) => uiLogger.debug("UI interaction", { component, action, ...properties }),
     error: (
       component: string,
       error: Error,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) =>
       uiLogger.error("UI error", {
         component,
@@ -284,7 +301,7 @@ export const loggers = {
       component: string,
       metric: string,
       value: number,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) =>
       uiLogger.info("UI performance", {
         component,

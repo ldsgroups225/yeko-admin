@@ -19,6 +19,9 @@ export const env = createEnv({
     BETTER_STACK_ENABLED: z.string().optional(),
     BETTER_STACK_BATCH_SIZE: z.string().optional(),
     BETTER_STACK_FLUSH_INTERVAL: z.string().optional(),
+    // Sentry configuration
+    SENTRY_ORG: z.string().optional(),
+    SENTRY_PROJECT: z.string().optional(),
   },
   /*
    * Environment variables available on the client (and server).
@@ -30,6 +33,9 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
     NEXT_PUBLIC_SITE_URL: z.url(),
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().min(1),
+    // Sentry client configuration
+    NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
+    NEXT_PUBLIC_SENTRY_DISABLED: z.string().optional(),
   },
   /*
    * Specify what values should be validated by your schemas above.
@@ -51,5 +57,10 @@ export const env = createEnv({
     BETTER_STACK_ENABLED: process.env.BETTER_STACK_ENABLED,
     BETTER_STACK_BATCH_SIZE: process.env.BETTER_STACK_BATCH_SIZE,
     BETTER_STACK_FLUSH_INTERVAL: process.env.BETTER_STACK_FLUSH_INTERVAL,
+    // Sentry configuration
+    SENTRY_ORG: process.env.SENTRY_ORG,
+    SENTRY_PROJECT: process.env.SENTRY_PROJECT,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    NEXT_PUBLIC_SENTRY_DISABLED: process.env.NEXT_PUBLIC_SENTRY_DISABLED,
   },
 });

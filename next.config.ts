@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
@@ -23,4 +24,21 @@ const nextConfig: NextConfig = {
   generateEtags: false,
 };
 
-export default withBundleAnalyzer(nextConfig);
+// Wrap with Sentry configuration
+const configWithSentry = withSentryConfig(nextConfig, {
+  // Sentry build-time configuration
+  silent: process.env.NODE_ENV === "production",
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Upload source maps for better error tracking
+  widenClientFileUpload: true,
+  tunnelRoute: "/monitoring",
+  sourcemaps: {
+    disable: true,
+  },
+  disableLogger: true,
+  automaticVercelMonitors: true,
+});
+
+export default withBundleAnalyzer(configWithSentry);

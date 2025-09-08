@@ -2,10 +2,10 @@ import { useCallback } from "react";
 
 // Client-side logging interface that mirrors server-side loggers
 interface ClientLogger {
-  debug: (message: string, properties?: Record<string, any>) => void;
-  info: (message: string, properties?: Record<string, any>) => void;
-  warn: (message: string, properties?: Record<string, any>) => void;
-  error: (message: string, properties?: Record<string, any>) => void;
+  debug: (message: string, properties?: Record<string, unknown>) => void;
+  info: (message: string, properties?: Record<string, unknown>) => void;
+  warn: (message: string, properties?: Record<string, unknown>) => void;
+  error: (message: string, properties?: Record<string, unknown>) => void;
 }
 
 // Client-side logging implementation
@@ -13,7 +13,7 @@ function createClientLogger(category: string): ClientLogger {
   const log = (
     level: "debug" | "info" | "warn" | "error",
     message: string,
-    properties?: Record<string, any>,
+    properties?: Record<string, unknown>,
   ) => {
     const timestamp = new Date().toISOString();
     const logEntry = {
@@ -64,13 +64,13 @@ function createClientLogger(category: string): ClientLogger {
   };
 
   return {
-    debug: (message: string, properties?: Record<string, any>) =>
+    debug: (message: string, properties?: Record<string, unknown>) =>
       log("debug", message, properties),
-    info: (message: string, properties?: Record<string, any>) =>
+    info: (message: string, properties?: Record<string, unknown>) =>
       log("info", message, properties),
-    warn: (message: string, properties?: Record<string, any>) =>
+    warn: (message: string, properties?: Record<string, unknown>) =>
       log("warn", message, properties),
-    error: (message: string, properties?: Record<string, any>) =>
+    error: (message: string, properties?: Record<string, unknown>) =>
       log("error", message, properties),
   };
 }
@@ -80,14 +80,14 @@ export function useLogger(component: string) {
   const logger = createClientLogger(`ui.${component}`);
 
   const logInteraction = useCallback(
-    (action: string, properties?: Record<string, any>) => {
+    (action: string, properties?: Record<string, unknown>) => {
       logger.info(`User interaction: ${action}`, properties);
     },
     [logger],
   );
 
   const logError = useCallback(
-    (error: Error, properties?: Record<string, any>) => {
+    (error: Error, properties?: Record<string, unknown>) => {
       logger.error(`Component error: ${error.message}`, {
         stack: error.stack,
         ...properties,
@@ -97,7 +97,7 @@ export function useLogger(component: string) {
   );
 
   const logPerformance = useCallback(
-    (metric: string, value: number, properties?: Record<string, any>) => {
+    (metric: string, value: number, properties?: Record<string, unknown>) => {
       logger.info(`Performance metric: ${metric}`, {
         value,
         unit: "ms",
@@ -120,7 +120,7 @@ export function useApiLogger() {
   const logger = createClientLogger("api.client");
 
   const logRequest = useCallback(
-    (method: string, url: string, properties?: Record<string, any>) => {
+    (method: string, url: string, properties?: Record<string, unknown>) => {
       logger.info(`API request: ${method} ${url}`, properties);
     },
     [logger],
@@ -132,7 +132,7 @@ export function useApiLogger() {
       url: string,
       status: number,
       duration: number,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) => {
       const level = status >= 400 ? "error" : status >= 300 ? "warn" : "info";
       logger[level](`API response: ${method} ${url} ${status}`, {
@@ -148,7 +148,7 @@ export function useApiLogger() {
       method: string,
       url: string,
       error: Error,
-      properties?: Record<string, any>,
+      properties?: Record<string, unknown>,
     ) => {
       logger.error(`API error: ${method} ${url}`, {
         error: error.message,
@@ -172,28 +172,28 @@ export function useAuthLogger() {
   const logger = createClientLogger("auth.client");
 
   const logLogin = useCallback(
-    (method: string, properties?: Record<string, any>) => {
+    (method: string, properties?: Record<string, unknown>) => {
       logger.info(`Login attempt: ${method}`, properties);
     },
     [logger],
   );
 
   const logLoginSuccess = useCallback(
-    (userId: string, method: string, properties?: Record<string, any>) => {
+    (userId: string, method: string, properties?: Record<string, unknown>) => {
       logger.info(`Login successful: ${method}`, { userId, ...properties });
     },
     [logger],
   );
 
   const logLoginFailure = useCallback(
-    (method: string, reason: string, properties?: Record<string, any>) => {
+    (method: string, reason: string, properties?: Record<string, unknown>) => {
       logger.warn(`Login failed: ${method}`, { reason, ...properties });
     },
     [logger],
   );
 
   const logLogout = useCallback(
-    (userId: string, properties?: Record<string, any>) => {
+    (userId: string, properties?: Record<string, unknown>) => {
       logger.info("User logout", { userId, ...properties });
     },
     [logger],
