@@ -96,7 +96,7 @@
   - Implement automated story generation utilities
   - _Requirements: 1.5, 2.3_
 
-- [ ] 17. Set up monitoring dashboards and alerting
+- [x] 17. Set up monitoring dashboards and alerting
   - Configure Better Stack dashboard for log analysis
   - Set up Sentry alerting rules for critical errors
   - Create Checkly monitoring for new endpoints

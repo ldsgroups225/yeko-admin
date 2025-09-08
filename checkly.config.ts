@@ -13,12 +13,13 @@ const emailChannel = new EmailAlertChannel("email-channel-1", {
 });
 
 export const config = defineConfig({
-  projectName: process.env.CHECKLY_PROJECT_NAME ?? "",
-  logicalId: process.env.CHECKLY_LOGICAL_ID ?? "",
-  repoUrl: "https://github.com/ixartz/Next-js-Boilerplate",
+  projectName: process.env.CHECKLY_PROJECT_NAME ?? "yeko-admin",
+  logicalId: process.env.CHECKLY_LOGICAL_ID ?? "yeko-admin-monitoring",
+  repoUrl:
+    process.env.GITHUB_REPOSITORY_URL ?? "https://github.com/yeko/yeko-admin",
   checks: {
-    locations: ["us-east-1", "eu-west-1"],
-    tags: ["website"],
+    locations: ["us-east-1", "eu-west-1", "ap-southeast-1"],
+    tags: ["yeko-admin"],
     runtimeId: "2024.02",
     browserChecks: {
       frequency: Frequency.EVERY_24H,
