@@ -18,13 +18,9 @@ const nextConfig: NextConfig = {
   },
   // Enable compression
   compress: true,
-  // Optimize bundle
-  swcMinify: true,
   // Performance optimizations
   poweredByHeader: false,
   generateEtags: false,
-  // Optimize CSS
-  optimizeCss: true,
 };
 
 export default withBundleAnalyzer(nextConfig);
