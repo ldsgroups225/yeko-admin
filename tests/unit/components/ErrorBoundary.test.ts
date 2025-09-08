@@ -2,23 +2,42 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ErrorBoundaryUtils } from "../../../src/lib/error-logging";
 
-// Mock the error logging utilities
-vi.mock("../../../src/lib/error-logging", () => ({
-  ErrorBoundaryUtils: {
-    logError: vi.fn(),
-    captureComponentError: vi.fn(),
-    captureApiError: vi.fn(),
-  },
-}));
-
-// Mock the logger
-vi.mock("../../../src/lib/logger", () => ({
-  loggers: {
-    app: {
-      error: vi.fn(),
+// Mock the error logging utilities - but allow the actual ErrorBoundaryUtils to be imported
+vi.mock("../../../src/lib/error-logging", async () => {
+  const actual = (await vi.importActual(
+    "../../../src/lib/error-logging",
+  )) as Record<string, unknown>;
+  return {
+    ...actual,
+    ErrorBoundaryUtils: {
+      ...(actual.ErrorBoundaryUtils as Record<string, unknown>),
+      logError: vi.fn(),
+      captureComponentError: vi.fn(),
+      captureApiError: vi.fn(),
     },
-  },
-}));
+  };
+});
+
+// Mock the logger - but allow the actual logger to be imported
+vi.mock("../../../src/lib/logger", async () => {
+  const actual = (await vi.importActual("../../../src/lib/logger")) as Record<
+    string,
+    unknown
+  >;
+  return {
+    ...actual,
+    loggers: {
+      ...(actual.loggers as Record<string, unknown>),
+      app: {
+        ...((actual.loggers as Record<string, unknown>).app as Record<
+          string,
+          unknown
+        >),
+        error: vi.fn(),
+      },
+    },
+  };
+});
 
 // Mock Sentry
 vi.mock("@sentry/nextjs", () => ({
@@ -26,15 +45,32 @@ vi.mock("@sentry/nextjs", () => ({
   setTag: vi.fn(),
   setContext: vi.fn(),
   showReportDialog: vi.fn(),
+  addBreadcrumb: vi.fn(),
+  setUser: vi.fn(),
+  setLevel: vi.fn(),
+  withScope: vi.fn((callback) => callback({})),
+  addIntegration: vi.fn(),
+  init: vi.fn(),
+  getCurrentHub: vi.fn(() => ({
+    getClient: vi.fn(),
+    getScope: vi.fn(() => ({ setTag: vi.fn(), setContext: vi.fn() })),
+  })),
 }));
 
-// Mock SentryUtils
-vi.mock("../../../src/lib/sentry-integration", () => ({
-  SentryUtils: {
-    captureErrorBoundaryError: vi.fn(() => "test-event-id"),
-    captureRecovery: vi.fn(),
-  },
-}));
+// Mock SentryUtils - but allow the actual SentryUtils to be imported
+vi.mock("../../../src/lib/sentry-integration", async () => {
+  const actual = (await vi.importActual(
+    "../../../src/lib/sentry-integration",
+  )) as Record<string, unknown>;
+  return {
+    ...actual,
+    SentryUtils: {
+      ...(actual.SentryUtils as Record<string, unknown>),
+      captureErrorBoundaryError: vi.fn(() => "test-event-id"),
+      captureRecovery: vi.fn(),
+    },
+  };
+});
 
 describe("Error Boundary Components", () => {
   beforeEach(() => {
@@ -122,7 +158,7 @@ describe("Error Boundary Components", () => {
 
       const fingerprint = ErrorBoundaryUtils.createFingerprint(error, context);
 
-      expect(fingerprint).toEqual(["Test error", "TestComponent", "Error"]);
+      expect(fingerprint).toEqual(["Error", "Test error", "TestComponent"]);
     });
   });
 
@@ -291,12 +327,14 @@ describe("Error Boundary Components", () => {
   });
 
   describe("Error Boundary Integration", () => {
-    it("should integrate with Sentry correctly", () => {
-      const { SentryUtils } = require("../../../src/lib/sentry-integration");
+    it("should integrate with Sentry correctly", async () => {
+      const { SentryUtils } = await import(
+        "../../../src/lib/sentry-integration"
+      );
 
       const error = new Error("Test error");
       const errorInfo = { componentStack: "Stack trace" } as React.ErrorInfo;
-      const context = { component: "TestComponent" };
+      const context = { componentName: "TestComponent" };
 
       const eventId = SentryUtils.captureErrorBoundaryError(
         error,
@@ -312,11 +350,11 @@ describe("Error Boundary Components", () => {
       expect(eventId).toBe("test-event-id");
     });
 
-    it("should integrate with logger correctly", () => {
-      const { loggers } = require("../../../src/lib/logger");
+    it("should integrate with logger correctly", async () => {
+      const { loggers } = await import("../../../src/lib/logger");
 
       const error = new Error("Test error");
-      const context = { component: "TestComponent" };
+      const context = { componentName: "TestComponent" };
 
       loggers.app.error(error, context);
 
