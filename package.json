@@ -167,7 +167,7 @@
     "@storybook/test": "^9.1.5",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.0.2",
