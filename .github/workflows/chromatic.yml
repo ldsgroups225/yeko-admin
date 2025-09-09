@@ -22,7 +22,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Required for Chromatic to work properly
 
@@ -46,7 +46,7 @@ jobs:
 
       - name: Comment PR with Chromatic results
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { data: comments } = await github.rest.issues.listComments({
