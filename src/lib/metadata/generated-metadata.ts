@@ -1,5 +1,5 @@
 // Auto-generated project metadata
-// Generated on: 2025-09-09T15:38:50.003Z
+// Generated on: 2025-09-09T16:01:03.072Z
 
 import type { ProjectMetadata } from "./metadata-types";
 
@@ -94,20 +94,20 @@ export const projectMetadata: ProjectMetadata = {
     "tailwindcss",
     "tw-animate-css",
     "typescript",
+    "vite-tsconfig-paths",
     "vitest",
     "vitest-browser-react",
     "zod",
   ],
   git: {
     branch: "main",
-    commit: "9bce46bb1bb19e8cd8a5939772c81d8b23895865",
-    shortCommit: "9bce46b",
-    lastCommit:
-      "9bce46b fix: disable Storybook commands in workflows due to package removal",
-    timestamp: "2025-09-09T15:38:49.962Z",
+    commit: "20d1f8e936164bf5d7da6d49971251bc264c1451",
+    shortCommit: "20d1f8e",
+    lastCommit: "20d1f8e fix(ci): resolve local test suite failures",
+    timestamp: "2025-09-09T16:01:03.011Z",
   },
   build: {
-    timestamp: "2025-09-09T15:38:50.003Z",
+    timestamp: "2025-09-09T16:01:03.072Z",
     environment: "development",
     nodeVersion: "v20.18.1",
   },
@@ -116,7 +116,7 @@ export const projectMetadata: ProjectMetadata = {
     totalRoutes: 13,
     totalApiRoutes: 1,
     totalComponents: 59,
-    totalSize: 821336,
+    totalSize: 824097,
   },
 };
 

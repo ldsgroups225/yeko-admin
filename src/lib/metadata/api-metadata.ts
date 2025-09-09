@@ -1,5 +1,5 @@
 // Auto-generated API metadata
-// Generated on: 2025-09-09T15:38:50.002Z
+// Generated on: 2025-09-09T16:01:03.071Z
 
 import type { RouteMetadata } from "./metadata-types";
 
@@ -21,7 +21,7 @@ export function findApiEndpoint(path: string): RouteMetadata | undefined {
   return apiEndpoints.find((endpoint) => endpoint.path === path);
 }
 
-export function getApiEndpointsByMethod(_method: string): RouteMetadata[] {
+export function getApiEndpointsByMethod(method: string): RouteMetadata[] {
   // This would need to be enhanced to parse actual HTTP methods from route files
   return apiEndpoints;
 }
