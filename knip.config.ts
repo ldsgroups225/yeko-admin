@@ -3,6 +3,7 @@ import type { KnipConfig } from "knip";
 const config: KnipConfig = {
   // Files to exclude from Knip analysis
   ignore: [
+    ".storybook/vitest.config.mts", // Ignore Storybook vitest config
     "src/app/forbidden.tsx", // Error page - may be used by middleware
     "src/app/unauthorized.tsx", // Error page - may be used by middleware
     "src/actions/classes.ts", // Future feature

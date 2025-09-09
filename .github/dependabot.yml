@@ -10,7 +10,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-      timezone: "UTC"
+      timezone: "Etc/UTC"
     
     # Security updates
     open-pull-requests-limit: 10
@@ -109,10 +109,6 @@ updates:
     pull-request-branch-name:
       separator: "/"
     
-    # Reviewers and assignees
-    reviewers:
-      - "dependabot[bot]"
-    
     # Labels
     labels:
       - "dependencies"
@@ -135,7 +131,7 @@ updates:
       interval: "weekly"
       day: "tuesday"
       time: "10:00"
-      timezone: "UTC"
+      timezone: "Etc/UTC"
     
     open-pull-requests-limit: 5
     
@@ -169,7 +165,7 @@ updates:
   #     interval: "weekly"
   #     day: "wednesday"
   #     time: "11:00"
-  #     timezone: "UTC"
+  #     timezone: "Etc/UTC"
   #   
   #   open-pull-requests-limit: 3
   #   
@@ -181,10 +177,6 @@ updates:
   #     - "docker"
   #     - "infrastructure"
   #     - "automated"
-
-# Security-only updates for all ecosystems
-# These run immediately when vulnerabilities are detected
-registries: {}
 
 # Note: Security updates are automatically enabled and cannot be disabled
 # They will create PRs immediately when vulnerabilities are detected

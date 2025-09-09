@@ -27,9 +27,10 @@ jobs:
 
       - name: Parse Dependabot PR
         id: parse-pr
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           # Extract dependency information from PR title
-          PR_TITLE="${{ github.event.pull_request.title }}"
           echo "PR Title: $PR_TITLE"
           
           # Parse dependency name and update type
@@ -71,6 +72,9 @@ jobs:
 
       - name: Check auto-merge eligibility
         id: check-eligibility
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           DEPENDENCY_NAME="${{ steps.parse-pr.outputs.dependency-name }}"
           UPDATE_TYPE="${{ steps.parse-pr.outputs.update-type }}"
@@ -161,9 +165,9 @@ jobs:
           fi
           
           # Security updates are always eligible (if they pass tests)
-          if [[ "${{ github.event.pull_request.title }}" == *"security"* ]] || 
-             [[ "${{ github.event.pull_request.body }}" == *"security"* ]] ||
-             [[ "${{ github.event.pull_request.body }}" == *"vulnerability"* ]]; then
+          if [[ "$PR_TITLE" == *"security"* ]] || 
+             [[ "$PR_BODY" == *"security"* ]] ||
+             [[ "$PR_BODY" == *"vulnerability"* ]]; then
             echo "✅ Security update detected: $DEPENDENCY_NAME"
             ELIGIBLE="true"
           fi

@@ -1,5 +1,5 @@
 // Auto-generated project metadata
-// Generated on: 2025-09-08T21:13:33.259Z
+// Generated on: 2025-09-09T15:38:50.003Z
 
 import type { ProjectMetadata } from "./metadata-types";
 
@@ -71,6 +71,8 @@ export const projectMetadata: ProjectMetadata = {
     "@next/bundle-analyzer",
     "@playwright/test",
     "@spotlightjs/spotlight",
+    "@storybook/react",
+    "@storybook/test",
     "@t3-oss/env-nextjs",
     "@tailwindcss/postcss",
     "@types/node",
@@ -98,14 +100,14 @@ export const projectMetadata: ProjectMetadata = {
   ],
   git: {
     branch: "main",
-    commit: "7a1acd226e986db91a1fcf5bb562775f6562f242",
-    shortCommit: "7a1acd2",
+    commit: "9bce46bb1bb19e8cd8a5939772c81d8b23895865",
+    shortCommit: "9bce46b",
     lastCommit:
-      "7a1acd2 test: enhance ErrorBoundary tests with improved mocking and integration checks",
-    timestamp: "2025-09-08T21:13:33.223Z",
+      "9bce46b fix: disable Storybook commands in workflows due to package removal",
+    timestamp: "2025-09-09T15:38:49.962Z",
   },
   build: {
-    timestamp: "2025-09-08T21:13:33.259Z",
+    timestamp: "2025-09-09T15:38:50.003Z",
     environment: "development",
     nodeVersion: "v20.18.1",
   },
@@ -114,7 +116,7 @@ export const projectMetadata: ProjectMetadata = {
     totalRoutes: 13,
     totalApiRoutes: 1,
     totalComponents: 59,
-    totalSize: 824020,
+    totalSize: 821336,
   },
 };
 
