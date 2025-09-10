@@ -22,9 +22,9 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Yeko Admin",
+  title: "Yeko Admin - Système de Gestion Scolaire",
   description:
-    "Yeko est une plateforme éducative le suivie de la vie scolaire des élèves par leur parent",
+    "La Plateforme Tout-en-Un pour Gérer et Développer Votre École. Simplifiez l'administration, rationalisez les finances et améliorez la communication pour les directeurs, éducateurs et parents.",
   icons: {
     icon: "/logo2.png",
   },
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body
         className={`${dmSans.variable} ${dmSerif.variable} ${dmMono.variable} antialiased`}
       >

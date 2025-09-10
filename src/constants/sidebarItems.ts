@@ -51,7 +51,7 @@ export const actionButtons: ActionButton[] = [
     icon: Building2,
   },
   {
-    title: "Nouveau membre d'école",
+    title: "Nouvel utilisateur",
     parent: "/users",
     href: "/users/new",
     icon: Users,

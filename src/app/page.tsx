@@ -1,20 +1,21 @@
-export default function HomePage() {
+import { CTA } from "@/components/landing/CTA";
+import { FeatureTabs } from "@/components/landing/FeatureTabs";
+import { Footer } from "@/components/landing/Footer";
+import { Hero } from "@/components/landing/Hero";
+import { MarqueeLogos } from "@/components/landing/MarqueeLogos";
+import { Navbar } from "@/components/landing/Navbar";
+import { Testimonials } from "@/components/landing/Testimonials";
+
+export default function LandingPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-6">
-        <h1 className="text-4xl font-bold text-foreground">Yeko Admin</h1>
-        <p className="text-xl text-muted-foreground max-w-md">
-          Welcome to your admin dashboard. Please sign in to continue.
-        </p>
-        <div className="space-y-4">
-          <a
-            href="/sign-in"
-            className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Sign In
-          </a>
-        </div>
-      </div>
-    </div>
+    <main className="flex flex-col items-center">
+      <Navbar />
+      <Hero />
+      <MarqueeLogos />
+      <FeatureTabs />
+      <Testimonials />
+      <CTA />
+      <Footer />
+    </main>
   );
 }

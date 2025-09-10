@@ -23,7 +23,7 @@ export default function SignInPage() {
             Connexion
           </CardTitle>
           <CardDescription className="text-muted-foreground px-4">
-            Hey, Entrer vos details pour vous connecter
+            Entrez vos identifiants pour vous connecter
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 px-8 pb-8">
