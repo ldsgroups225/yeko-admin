@@ -13,19 +13,29 @@ export async function signInWithGoogleAction() {
 
     if (!result.success) {
       console.error("Sign-in failed:", result.error);
-      throw new Error(result.error || "Erreur de connexion Google");
+      return {
+        success: false,
+        error: result.error || "Erreur de connexion Google",
+      };
     }
 
     if (result.url) {
       redirect(result.url);
     }
+
+    return {
+      success: true,
+      data: { message: "Connexion Google réussie" },
+    };
   } catch (error) {
     console.error("Sign-in error:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Une erreur inattendue s'est produite",
-    );
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Une erreur inattendue s'est produite",
+    };
   }
 }
 
@@ -62,7 +72,10 @@ export async function signInWithEmailAction(formData: FormData) {
   const password = formData.get("password") as string;
 
   if (!email || !password) {
-    throw new Error("Email et mot de passe requis");
+    return {
+      success: false,
+      error: "Email et mot de passe requis",
+    };
   }
 
   try {
@@ -74,15 +87,26 @@ export async function signInWithEmailAction(formData: FormData) {
     });
 
     if (error) {
-      throw new Error("Identifiants invalides");
+      return {
+        success: false,
+        error: "Identifiants invalides",
+      };
     }
+
+    // Success - the middleware will handle the redirect to dashboard
+    return {
+      success: true,
+      data: { message: "Connexion réussie" },
+    };
   } catch (error) {
     console.error("Sign-in error:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Une erreur inattendue s'est produite",
-    );
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Une erreur inattendue s'est produite",
+    };
   }
 }
 
