@@ -10,7 +10,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { generateId } from "@/lib/utils";
-import { UserButton } from "./_components";
+import { ThemeToggle, UserButton } from "./_components";
 import { AnimatedSidebar } from "./_components/AnimatedSidebar";
 
 interface Props {
@@ -161,7 +161,9 @@ export default function ProtectedLayout({ children }: Props) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex items-center justify-between"
             >
+              <ThemeToggle />
               <Suspense
                 fallback={
                   <motion.div
