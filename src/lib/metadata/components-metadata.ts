@@ -1,5 +1,5 @@
 // Auto-generated components metadata
-// Generated on: 2025-09-10T14:37:48.586Z
+// Generated on: 2025-09-10T15:14:35.614Z
 
 import type { ComponentMetadata } from "./metadata-types";
 
@@ -275,8 +275,8 @@ export const components: ComponentMetadata[] = [
     file: "src/components/ui/chart.tsx",
     props: [],
     imports: ["react", "recharts", "@/lib/utils"],
-    size: 9781,
-    lastModified: new Date("2025-09-06T18:55:20.211Z"),
+    size: 9947,
+    lastModified: new Date("2025-09-10T14:41:27.319Z"),
   },
   {
     name: "checkbox",

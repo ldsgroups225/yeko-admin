@@ -1,5 +1,5 @@
 // Auto-generated metadata index
-// Generated on: 2025-09-10T14:37:48.590Z
+// Generated on: 2025-09-10T15:14:35.618Z
 
 export * from "./api-metadata";
 export * from "./components-metadata";

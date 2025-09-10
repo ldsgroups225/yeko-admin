@@ -1,5 +1,5 @@
 // Auto-generated project metadata
-// Generated on: 2025-09-10T14:37:48.589Z
+// Generated on: 2025-09-10T15:14:35.617Z
 
 import type { ProjectMetadata } from "./metadata-types";
 
@@ -46,6 +46,7 @@ export const projectMetadata: ProjectMetadata = {
     "cmdk",
     "date-fns",
     "embla-carousel-react",
+    "framer-motion",
     "input-otp",
     "lucide-react",
     "motion",
@@ -93,6 +94,7 @@ export const projectMetadata: ProjectMetadata = {
     "lint-staged",
     "npm-run-all",
     "pglite-server",
+    "shadcn",
     "tailwindcss",
     "tw-animate-css",
     "typescript",
@@ -103,23 +105,23 @@ export const projectMetadata: ProjectMetadata = {
   ],
   git: {
     branch: "main",
-    commit: "0057aee92f4de406a3be7dc1f13b916ccc51fe7e",
-    shortCommit: "0057aee",
+    commit: "aed4ddb93e39ecc46ef26ceaf92abf4dadecc1a7",
+    shortCommit: "aed4ddb",
     lastCommit:
-      "0057aee chore: comment out workflows and disable Storybook related steps due to package removal",
-    timestamp: "2025-09-10T14:37:48.503Z",
+      "aed4ddb fix: optimize Edge Function size to resolve Vercel deployment limit",
+    timestamp: "2025-09-10T15:14:35.585Z",
   },
   build: {
-    timestamp: "2025-09-10T14:37:48.589Z",
+    timestamp: "2025-09-10T15:14:35.617Z",
     environment: "development",
     nodeVersion: "v20.18.1",
   },
   stats: {
-    totalFiles: 183,
+    totalFiles: 187,
     totalRoutes: 13,
     totalApiRoutes: 1,
     totalComponents: 59,
-    totalSize: 912467,
+    totalSize: 924204,
   },
 };
 

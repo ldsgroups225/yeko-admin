@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         
         <!-- Title -->
         <text x="600" y="320" text-anchor="middle" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="${title.length > 50 ? "48" : "64"}" font-weight="600">
-          ${title.length > 50 ? title.substring(0, 47) + "..." : title}
+          ${title.length > 50 ? `${title.substring(0, 47)}...` : title}
         </text>
         
         <!-- Description -->
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           description
             ? `
           <text x="600" y="380" text-anchor="middle" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="24">
-            ${description.length > 60 ? description.substring(0, 57) + "..." : description}
+            ${description.length > 60 ? `${description.substring(0, 57)}...` : description}
           </text>
         `
             : ""

@@ -1,20 +1,17 @@
 import { Building2 } from "lucide-react";
-import Link from "next/link";
+import * as motion from "motion/react-client";
 import { Suspense } from "react";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { sidebarItems } from "@/constants";
 import { generateId } from "@/lib/utils";
 import { UserButton } from "./_components";
+import { AnimatedSidebar } from "./_components/AnimatedSidebar";
 
 interface Props {
   children: React.ReactNode;
@@ -107,50 +104,83 @@ export default function ProtectedLayout({ children }: Props) {
 
         <Sidebar className="border-r border-border/50 relative z-10 bg-card/80 backdrop-blur-xl shadow-soft">
           <SidebarHeader className="border-b border-border/50 p-6">
-            <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-medium">
-                <Building2 className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
+            <motion.div
+              className="flex items-center space-x-3"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <motion.div
+                className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-medium"
+                whileHover={{
+                  scale: 1.05,
+                  rotate: 5,
+                  transition: { duration: 0.2 },
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <motion.div
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 3,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <Building2 className="h-5 w-5 text-primary-foreground" />
+                </motion.div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
                 <h1 className="text-lg font-bold text-foreground tracking-tight">
                   Yeko Admin
                 </h1>
                 <p className="text-xs text-muted-foreground font-medium">
                   Gestion scolaire
                 </p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </SidebarHeader>
 
           <SidebarContent className="px-3 py-4">
-            <SidebarMenu className="space-y-1">
-              {sidebarItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href={item.href}
-                      prefetch={true}
-                      className="flex items-center space-x-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-muted/80 hover:shadow-soft group"
-                    >
-                      <item.icon className="h-4 w-4 transition-colors group-hover:text-primary" />
-                      <span className="transition-colors group-hover:text-foreground">
-                        {item.title}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <AnimatedSidebar />
+            </motion.div>
           </SidebarContent>
 
           <SidebarFooter className="border-t border-border/50 p-4">
-            <Suspense
-              fallback={
-                <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />
-              }
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <UserButton />
-            </Suspense>
+              <Suspense
+                fallback={
+                  <motion.div
+                    className="h-10 w-10 bg-muted rounded-full"
+                    animate={{
+                      opacity: [0.5, 1, 0.5],
+                      scale: [1, 1.05, 1],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                }
+              >
+                <UserButton />
+              </Suspense>
+            </motion.div>
           </SidebarFooter>
         </Sidebar>
 
@@ -163,7 +193,14 @@ export default function ProtectedLayout({ children }: Props) {
           </header>
 
           <main className="flex-1 overflow-auto p-6 lg:p-8 bg-background/30 backdrop-blur-sm">
-            <div className="animate-fade-in">{children}</div>
+            <motion.div
+              className="animate-fade-in"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              {children}
+            </motion.div>
           </main>
         </div>
       </div>
