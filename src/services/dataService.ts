@@ -39,6 +39,13 @@ type StudentsPerSchool = {
   studentCount: number;
 };
 
+type SchoolsWithStats = {
+  totalSchools: number;
+  activeSchools: number;
+  totalStudents: number;
+  totalTeachers: number;
+};
+
 // Schools data functions
 export async function getSchools(): Promise<SchoolWithStats[]> {
   const supabase = await createClient();
@@ -486,4 +493,227 @@ export async function getStudentsPerSchoolWrapper(): Promise<
 > {
   const supabase = await createClient();
   return getStudentsPerSchool(supabase);
+}
+
+// Enhanced schools data functions with caching
+export const getSchoolsWithStats = unstable_cache(
+  async (
+    supabase: Awaited<ReturnType<typeof createClient>>,
+  ): Promise<SchoolsWithStats> => {
+    const [
+      // Get total schools, students, teachers
+      { data: allSchools, count: totalSchools },
+      { count: totalStudents },
+      { count: totalTeachers },
+    ] = await Promise.all([
+      supabase
+        .from("schools")
+        .select("id, name, state_id", { count: "exact", head: false }),
+      supabase
+        .from("student_school_class")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true),
+      supabase
+        .from("users")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true),
+    ]);
+
+    const activeSchools = allSchools?.filter(
+      (school) => school.state_id === EStatus.ACTIVE,
+    );
+
+    return {
+      totalSchools: totalSchools || 0,
+      activeSchools: activeSchools?.length || 0,
+      totalStudents: totalStudents || 0,
+      totalTeachers: totalTeachers || 0,
+    };
+  },
+  ["schools-with-stats"],
+  {
+    revalidate: 300, // Cache for 5 minutes
+    tags: ["schools", "stats", "students", "teachers"],
+  },
+);
+
+// Basic schools list (fast loading)
+export const getSchoolsBasic = unstable_cache(
+  async (
+    supabase: Awaited<ReturnType<typeof createClient>>,
+  ): Promise<School[]> => {
+    const { data: schools, error } = await supabase
+      .from("schools")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching schools:", error);
+      return [];
+    }
+
+    return schools || [];
+  },
+  ["schools-basic"],
+  {
+    revalidate: 300, // Cache for 5 minutes
+    tags: ["schools"],
+  },
+);
+
+// Student counts for schools (progressive loading)
+export const getSchoolsStudentCounts = unstable_cache(
+  async (
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    schoolIds: string[],
+  ): Promise<Record<string, number>> => {
+    if (schoolIds.length === 0) return {};
+
+    // Get student counts for all schools in parallel
+    const studentCountPromises = schoolIds.map(async (schoolId) => {
+      const { count: studentCount } = await supabase
+        .from("student_school_class")
+        .select("*", { count: "exact", head: true })
+        .eq("school_id", schoolId)
+        .eq("is_active", true);
+
+      return { schoolId, count: studentCount || 0 };
+    });
+
+    const results = await Promise.all(studentCountPromises);
+
+    // Convert to record for easy lookup
+    return results.reduce(
+      (acc, { schoolId, count }) => {
+        acc[schoolId] = count;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+  },
+  ["schools-student-counts"],
+  {
+    revalidate: 300, // Cache for 5 minutes
+    tags: ["schools", "students"],
+  },
+);
+
+// School detail data with caching
+export const getSchoolDetailData = unstable_cache(
+  async (
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    schoolId: string,
+  ): Promise<
+    | (SchoolWithStats & {
+        students: Array<{
+          id: string;
+          students?: {
+            first_name: string;
+            last_name: string;
+            date_of_birth: string | null;
+          };
+          classes?: {
+            name: string;
+          } | null;
+          enrollment_status: string;
+        }>;
+        teachers: unknown[];
+      })
+    | null
+  > => {
+    const { data: school, error } = await supabase
+      .from("schools")
+      .select("*")
+      .eq("id", schoolId)
+      .single();
+
+    if (error || !school) {
+      console.error("Error fetching school:", error);
+      return null;
+    }
+
+    // Get related data in parallel
+    const [{ count: studentCount }, { data: students }, { data: teachers }] =
+      await Promise.all([
+        supabase
+          .from("student_school_class")
+          .select("*", { count: "exact", head: true })
+          .eq("school_id", schoolId)
+          .eq("is_active", true),
+        supabase
+          .from("student_school_class")
+          .select(`
+          *,
+          students(*),
+          classes(*)
+        `)
+          .eq("school_id", schoolId)
+          .eq("is_active", true)
+          .limit(10),
+        supabase
+          .from("users")
+          .select(`
+          *,
+          user_roles!inner(
+            role_id,
+            roles(name)
+          )
+        `)
+          .eq("school_id", schoolId)
+          .eq("is_active", true)
+          .limit(10),
+      ]);
+
+    return {
+      ...school,
+      studentCount: studentCount || 0,
+      students: students || [],
+      teachers: teachers || [],
+    };
+  },
+  ["school-detail"],
+  {
+    revalidate: 180, // Cache for 3 minutes
+    tags: ["schools", "students", "teachers"],
+  },
+);
+
+// Wrapper functions for enhanced schools data
+export async function getSchoolsWithStatsWrapper(): Promise<SchoolsWithStats> {
+  const supabase = await createClient();
+  return getSchoolsWithStats(supabase);
+}
+
+export async function getSchoolsBasicWrapper(): Promise<School[]> {
+  const supabase = await createClient();
+  return getSchoolsBasic(supabase);
+}
+
+export async function getSchoolsStudentCountsWrapper(
+  schoolIds: string[],
+): Promise<Record<string, number>> {
+  const supabase = await createClient();
+  return getSchoolsStudentCounts(supabase, schoolIds);
+}
+
+export async function getSchoolDetailDataWrapper(schoolId: string): Promise<
+  | (SchoolWithStats & {
+      students: Array<{
+        id: string;
+        students?: {
+          first_name: string;
+          last_name: string;
+          date_of_birth: string | null;
+        };
+        classes?: {
+          name: string;
+        } | null;
+        enrollment_status: string;
+      }>;
+      teachers: unknown[];
+    })
+  | null
+> {
+  const supabase = await createClient();
+  return getSchoolDetailData(supabase, schoolId);
 }
