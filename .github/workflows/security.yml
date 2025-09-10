@@ -1,340 +1,340 @@
-name: Security and Dependency Monitoring
+# name: Security and Dependency Monitoring
 
-on:
-  schedule:
-    # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
-  push:
-    branches: [main]
-    paths:
-      - 'package.json'
-      - 'bun.lockb'
-  pull_request:
-    paths:
-      - 'package.json'
-      - 'bun.lockb'
-  workflow_dispatch:
+# on:
+#   schedule:
+#     # Run daily at 2 AM UTC
+#     - cron: '0 2 * * *'
+#   push:
+#     branches: [main]
+#     paths:
+#       - 'package.json'
+#       - 'bun.lockb'
+#   pull_request:
+#     paths:
+#       - 'package.json'
+#       - 'bun.lockb'
+#   workflow_dispatch:
 
-jobs:
-  # Job 1: Security Audit
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+# jobs:
+#   # Job 1: Security Audit
+#   security-audit:
+#     name: Security Audit
+#     runs-on: ubuntu-latest
+#     
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+#       - name: Setup Bun
+#         uses: oven-sh/setup-bun@v2
+#         with:
+#           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+#       - name: Install dependencies
+#         run: bun install --frozen-lockfile
 
-      - name: Run security audit
-        run: |
-          echo "🔍 Running security audit..."
-          bun audit --audit-level moderate || echo "Audit completed with warnings"
-          
-          # Create detailed audit report
-          echo "## 🔒 Security Audit Report" >> security-report.md
-          echo "" >> security-report.md
-          echo "**Date:** $(date)" >> security-report.md
-          echo "" >> security-report.md
-          
-          if bun audit --audit-level moderate > audit-output.txt 2>&1; then
-            echo "✅ **Status:** No moderate or high severity vulnerabilities found" >> security-report.md
-          else
-            echo "⚠️ **Status:** Vulnerabilities detected" >> security-report.md
-            echo "" >> security-report.md
-            echo "### Vulnerabilities Found:" >> security-report.md
-            echo "\`\`\`" >> security-report.md
-            cat audit-output.txt >> security-report.md
-            echo "\`\`\`" >> security-report.md
-          fi
+#       - name: Run security audit
+#         run: |
+#           echo "🔍 Running security audit..."
+#           bun audit --audit-level moderate || echo "Audit completed with warnings"
+#           
+#           # Create detailed audit report
+#           echo "## 🔒 Security Audit Report" >> security-report.md
+#           echo "" >> security-report.md
+#           echo "**Date:** $(date)" >> security-report.md
+#           echo "" >> security-report.md
+#           
+#           if bun audit --audit-level moderate > audit-output.txt 2>&1; then
+#             echo "✅ **Status:** No moderate or high severity vulnerabilities found" >> security-report.md
+#           else
+#             echo "⚠️ **Status:** Vulnerabilities detected" >> security-report.md
+#             echo "" >> security-report.md
+#             echo "### Vulnerabilities Found:" >> security-report.md
+#             echo "\`\`\`" >> security-report.md
+#             cat audit-output.txt >> security-report.md
+#             echo "\`\`\`" >> security-report.md
+#           fi
 
-      - name: Check for outdated dependencies
-        run: |
-          echo "" >> security-report.md
-          echo "### 📦 Dependency Status:" >> security-report.md
-          echo "" >> security-report.md
-          
-          # Check for outdated packages
-          if bun pm ls --outdated > outdated-output.txt 2>&1; then
-            echo "✅ All dependencies are up to date" >> security-report.md
-          else
-            echo "📋 Outdated dependencies found:" >> security-report.md
-            echo "\`\`\`" >> security-report.md
-            cat outdated-output.txt >> security-report.md
-            echo "\`\`\`" >> security-report.md
-          fi
+#       - name: Check for outdated dependencies
+#         run: |
+#           echo "" >> security-report.md
+#           echo "### 📦 Dependency Status:" >> security-report.md
+#           echo "" >> security-report.md
+#           
+#           # Check for outdated packages
+#           if bun pm ls --outdated > outdated-output.txt 2>&1; then
+#             echo "✅ All dependencies are up to date" >> security-report.md
+#           else
+#             echo "📋 Outdated dependencies found:" >> security-report.md
+#             echo "\`\`\`" >> security-report.md
+#             cat outdated-output.txt >> security-report.md
+#             echo "\`\`\`" >> security-report.md
+#           fi
 
-      - name: Upload security report
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-report
-          path: security-report.md
-          retention-days: 30
+#       - name: Upload security report
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: security-report
+#           path: security-report.md
+#           retention-days: 30
 
-      - name: Create issue for vulnerabilities
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            
-            let reportContent = '';
-            try {
-              reportContent = fs.readFileSync('security-report.md', 'utf8');
-            } catch (error) {
-              reportContent = 'Security audit failed. Please check the workflow logs.';
-            }
-            
-            const title = `🔒 Security Vulnerabilities Detected - ${new Date().toISOString().split('T')[0]}`;
-            
-            // Check if similar issue already exists
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: 'security',
-              state: 'open'
-            });
-            
-            const existingIssue = issues.find(issue => 
-              issue.title.includes('Security Vulnerabilities Detected')
-            );
-            
-            if (existingIssue) {
-              // Update existing issue
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existingIssue.number,
-                body: `## Updated Security Report\n\n${reportContent}`
-              });
-            } else {
-              // Create new issue
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: title,
-                body: reportContent,
-                labels: ['security', 'dependencies', 'automated']
-              });
-            }
+#       - name: Create issue for vulnerabilities
+#         if: always()
+#         uses: actions/github-script@v7
+#         with:
+#           script: |
+#             const fs = require('fs');
+#             
+#             let reportContent = '';
+#             try {
+#               reportContent = fs.readFileSync('security-report.md', 'utf8');
+#             } catch (error) {
+#               reportContent = 'Security audit failed. Please check the workflow logs.';
+#             }
+#             
+#             const title = `🔒 Security Vulnerabilities Detected - ${new Date().toISOString().split('T')[0]}`;
+#             
+#             // Check if similar issue already exists
+#             const { data: issues } = await github.rest.issues.listForRepo({
+#               owner: context.repo.owner,
+#               repo: context.repo.repo,
+#               labels: 'security',
+#               state: 'open'
+#             });
+#             
+#             const existingIssue = issues.find(issue => 
+#               issue.title.includes('Security Vulnerabilities Detected')
+#             );
+#             
+#             if (existingIssue) {
+#               // Update existing issue
+#               await github.rest.issues.createComment({
+#                 owner: context.repo.owner,
+#                 repo: context.repo.repo,
+#                 issue_number: existingIssue.number,
+#                 body: `## Updated Security Report\n\n${reportContent}`
+#               });
+#             } else {
+#               // Create new issue
+#               await github.rest.issues.create({
+#                 owner: context.repo.owner,
+#                 repo: context.repo.repo,
+#                 title: title,
+#                 body: reportContent,
+#                 labels: ['security', 'dependencies', 'automated']
+#               });
+#             }
 
-  # Job 2: License Compliance
-  license-check:
-    name: License Compliance
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#   # Job 2: License Compliance
+#   license-check:
+#     name: License Compliance
+#     runs-on: ubuntu-latest
+#     
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+#       - name: Setup Bun
+#         uses: oven-sh/setup-bun@v2
+#         with:
+#           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+#       - name: Install dependencies
+#         run: bun install --frozen-lockfile
 
-      - name: Check licenses
-        run: |
-          echo "📄 Checking dependency licenses..."
-          
-          # Create license report
-          echo "## 📄 License Compliance Report" > license-report.md
-          echo "" >> license-report.md
-          echo "**Date:** $(date)" >> license-report.md
-          echo "" >> license-report.md
-          
-          # List all licenses (this would need a proper license checker tool)
-          echo "### Dependencies and Licenses:" >> license-report.md
-          echo "" >> license-report.md
-          echo "| Package | License | Status |" >> license-report.md
-          echo "|---------|---------|--------|" >> license-report.md
-          
-          # Note: In a real implementation, you'd use a tool like license-checker
-          # For now, we'll just note that manual review is needed
-          echo "| Manual Review Required | - | ⚠️ Pending |" >> license-report.md
-          
-          echo "" >> license-report.md
-          echo "**Note:** This is a placeholder. Consider integrating a proper license checking tool." >> license-report.md
+#       - name: Check licenses
+#         run: |
+#           echo "📄 Checking dependency licenses..."
+#           
+#           # Create license report
+#           echo "## 📄 License Compliance Report" > license-report.md
+#           echo "" >> license-report.md
+#           echo "**Date:** $(date)" >> license-report.md
+#           echo "" >> license-report.md
+#           
+#           # List all licenses (this would need a proper license checker tool)
+#           echo "### Dependencies and Licenses:" >> license-report.md
+#           echo "" >> license-report.md
+#           echo "| Package | License | Status |" >> license-report.md
+#           echo "|---------|---------|--------|" >> license-report.md
+#           
+#           # Note: In a real implementation, you'd use a tool like license-checker
+#           # For now, we'll just note that manual review is needed
+#           echo "| Manual Review Required | - | ⚠️ Pending |" >> license-report.md
+#           
+#           echo "" >> license-report.md
+#           echo "**Note:** This is a placeholder. Consider integrating a proper license checking tool." >> license-report.md
 
-      - name: Upload license report
-        uses: actions/upload-artifact@v4
-        with:
-          name: license-report
-          path: license-report.md
-          retention-days: 30
+#       - name: Upload license report
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: license-report
+#           path: license-report.md
+#           retention-days: 30
 
-  # Job 3: Dependency Analysis
-  dependency-analysis:
-    name: Dependency Analysis
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#   # Job 3: Dependency Analysis
+#   dependency-analysis:
+#     name: Dependency Analysis
+#     runs-on: ubuntu-latest
+#     
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+#       - name: Setup Bun
+#         uses: oven-sh/setup-bun@v2
+#         with:
+#           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+#       - name: Install dependencies
+#         run: bun install --frozen-lockfile
 
-      - name: Analyze dependencies
-        run: |
-          echo "🔍 Analyzing dependencies..."
-          
-          # Run knip to find unused dependencies
-          bun run check:deps > deps-analysis.txt 2>&1 || true
-          
-          # Create analysis report
-          echo "## 📊 Dependency Analysis Report" > deps-report.md
-          echo "" >> deps-report.md
-          echo "**Date:** $(date)" >> deps-report.md
-          echo "" >> deps-report.md
-          
-          echo "### Unused Dependencies Analysis:" >> deps-report.md
-          echo "\`\`\`" >> deps-report.md
-          cat deps-analysis.txt >> deps-report.md
-          echo "\`\`\`" >> deps-report.md
-          
-          # Count total dependencies
-          TOTAL_DEPS=$(cat package.json | grep -c '".*":' || echo "0")
-          echo "" >> deps-report.md
-          echo "### Summary:" >> deps-report.md
-          echo "- **Total dependencies:** $TOTAL_DEPS" >> deps-report.md
-          echo "- **Analysis tool:** knip" >> deps-report.md
+#       - name: Analyze dependencies
+#         run: |
+#           echo "🔍 Analyzing dependencies..."
+#           
+#           # Run knip to find unused dependencies
+#           bun run check:deps > deps-analysis.txt 2>&1 || true
+#           
+#           # Create analysis report
+#           echo "## 📊 Dependency Analysis Report" > deps-report.md
+#           echo "" >> deps-report.md
+#           echo "**Date:** $(date)" >> deps-report.md
+#           echo "" >> deps-report.md
+#           
+#           echo "### Unused Dependencies Analysis:" >> deps-report.md
+#           echo "\`\`\`" >> deps-report.md
+#           cat deps-analysis.txt >> deps-report.md
+#           echo "\`\`\`" >> deps-report.md
+#           
+#           # Count total dependencies
+#           TOTAL_DEPS=$(cat package.json | grep -c '".*":' || echo "0")
+#           echo "" >> deps-report.md
+#           echo "### Summary:" >> deps-report.md
+#           echo "- **Total dependencies:** $TOTAL_DEPS" >> deps-report.md
+#           echo "- **Analysis tool:** knip" >> deps-report.md
 
-      - name: Upload dependency analysis
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-analysis
-          path: deps-report.md
-          retention-days: 30
+#       - name: Upload dependency analysis
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: dependency-analysis
+#           path: deps-report.md
+#           retention-days: 30
 
-  # Job 4: SAST (Static Application Security Testing)
-  sast-scan:
-    name: SAST Scan
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#   # Job 4: SAST (Static Application Security Testing)
+#   sast-scan:
+#     name: SAST Scan
+#     runs-on: ubuntu-latest
+#     
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+#       - name: Setup Bun
+#         uses: oven-sh/setup-bun@v2
+#         with:
+#           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+#       - name: Install dependencies
+#         run: bun install --frozen-lockfile
 
-      - name: Run static analysis
-        run: |
-          echo "🔍 Running static analysis..."
-          
-          # Use Biome for static analysis
-          bun run lint > sast-results.txt 2>&1 || true
-          
-          # Create SAST report
-          echo "## 🔍 Static Analysis Security Testing (SAST) Report" > sast-report.md
-          echo "" >> sast-report.md
-          echo "**Date:** $(date)" >> sast-report.md
-          echo "" >> sast-report.md
-          
-          echo "### Biome Analysis Results:" >> sast-report.md
-          echo "\`\`\`" >> sast-report.md
-          cat sast-results.txt >> sast-report.md
-          echo "\`\`\`" >> sast-report.md
-          
-          # Check for common security patterns
-          echo "" >> sast-report.md
-          echo "### Security Pattern Analysis:" >> sast-report.md
-          
-          # Check for potential security issues
-          if grep -r "eval(" src/ 2>/dev/null; then
-            echo "⚠️ Found eval() usage - potential security risk" >> sast-report.md
-          else
-            echo "✅ No eval() usage found" >> sast-report.md
-          fi
-          
-          if grep -r "innerHTML" src/ 2>/dev/null; then
-            echo "⚠️ Found innerHTML usage - review for XSS risks" >> sast-report.md
-          else
-            echo "✅ No innerHTML usage found" >> sast-report.md
-          fi
-          
-          if grep -r "dangerouslySetInnerHTML" src/ 2>/dev/null; then
-            echo "⚠️ Found dangerouslySetInnerHTML usage - review for XSS risks" >> sast-report.md
-          else
-            echo "✅ No dangerouslySetInnerHTML usage found" >> sast-report.md
-          fi
+#       - name: Run static analysis
+#         run: |
+#           echo "🔍 Running static analysis..."
+#           
+#           # Use Biome for static analysis
+#           bun run lint > sast-results.txt 2>&1 || true
+#           
+#           # Create SAST report
+#           echo "## 🔍 Static Analysis Security Testing (SAST) Report" > sast-report.md
+#           echo "" >> sast-report.md
+#           echo "**Date:** $(date)" >> sast-report.md
+#           echo "" >> sast-report.md
+#           
+#           echo "### Biome Analysis Results:" >> sast-report.md
+#           echo "\`\`\`" >> sast-report.md
+#           cat sast-results.txt >> sast-report.md
+#           echo "\`\`\`" >> sast-report.md
+#           
+#           # Check for common security patterns
+#           echo "" >> sast-report.md
+#           echo "### Security Pattern Analysis:" >> sast-report.md
+#           
+#           # Check for potential security issues
+#           if grep -r "eval(" src/ 2>/dev/null; then
+#             echo "⚠️ Found eval() usage - potential security risk" >> sast-report.md
+#           else
+#             echo "✅ No eval() usage found" >> sast-report.md
+#           fi
+#           
+#           if grep -r "innerHTML" src/ 2>/dev/null; then
+#             echo "⚠️ Found innerHTML usage - review for XSS risks" >> sast-report.md
+#           else
+#             echo "✅ No innerHTML usage found" >> sast-report.md
+#           fi
+#           
+#           if grep -r "dangerouslySetInnerHTML" src/ 2>/dev/null; then
+#             echo "⚠️ Found dangerouslySetInnerHTML usage - review for XSS risks" >> sast-report.md
+#           else
+#             echo "✅ No dangerouslySetInnerHTML usage found" >> sast-report.md
+#           fi
 
-      - name: Upload SAST report
-        uses: actions/upload-artifact@v4
-        with:
-          name: sast-report
-          path: sast-report.md
-          retention-days: 30
+#       - name: Upload SAST report
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: sast-report
+#           path: sast-report.md
+#           retention-days: 30
 
-  # Job 5: Summary and Notification
-  security-summary:
-    name: Security Summary
-    runs-on: ubuntu-latest
-    needs: [security-audit, license-check, dependency-analysis, sast-scan]
-    if: always()
-    
-    steps:
-      - name: Download all reports
-        uses: actions/download-artifact@v4
-        with:
-          path: reports/
+#   # Job 5: Summary and Notification
+#   security-summary:
+#     name: Security Summary
+#     runs-on: ubuntu-latest
+#     needs: [security-audit, license-check, dependency-analysis, sast-scan]
+#     if: always()
+#     
+#     steps:
+#       - name: Download all reports
+#         uses: actions/download-artifact@v4
+#         with:
+#           path: reports/
 
-      - name: Create combined summary
-        run: |
-          echo "# 🔒 Security and Dependency Monitoring Summary" > combined-report.md
-          echo "" >> combined-report.md
-          echo "**Date:** $(date)" >> combined-report.md
-          echo "**Repository:** ${{ github.repository }}" >> combined-report.md
-          echo "**Workflow:** ${{ github.workflow }}" >> combined-report.md
-          echo "" >> combined-report.md
-          
-          echo "## Job Results:" >> combined-report.md
-          echo "" >> combined-report.md
-          echo "| Job | Status |" >> combined-report.md
-          echo "|-----|--------|" >> combined-report.md
-          echo "| Security Audit | ${{ needs.security-audit.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> combined-report.md
-          echo "| License Check | ${{ needs.license-check.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> combined-report.md
-          echo "| Dependency Analysis | ${{ needs.dependency-analysis.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> combined-report.md
-          echo "| SAST Scan | ${{ needs.sast-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> combined-report.md
-          echo "" >> combined-report.md
-          
-          # Combine individual reports if they exist
-          for report in reports/*/; do
-            if [ -d "$report" ]; then
-              echo "## $(basename "$report" | tr '-' ' ' | sed 's/\b\w/\U&/g')" >> combined-report.md
-              echo "" >> combined-report.md
-              for file in "$report"*.md; do
-                if [ -f "$file" ]; then
-                  cat "$file" >> combined-report.md
-                  echo "" >> combined-report.md
-                fi
-              done
-            fi
-          done
+#       - name: Create combined summary
+#         run: |
+#           echo "# 🔒 Security and Dependency Monitoring Summary" > combined-report.md
+#           echo "" >> combined-report.md
+#           echo "**Date:** $(date)" >> combined-report.md
+#           echo "**Repository:** ${{ github.repository }}" >> combined-report.md
+#           echo "**Workflow:** ${{ github.workflow }}" >> combined-report.md
+#           echo "" >> combined-report.md
+#           
+#           echo "## Job Results:" >> combined-report.md
+#           echo "" >> combined-report.md
+#           echo "| Job | Status |" >> combined-report.md
+#           echo "|-----|--------|" >> combined-report.md
+#           echo "| Security Audit | ${{ needs.security-audit.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> combined-report.md
+#           echo "| License Check | ${{ needs.license-check.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> combined-report.md
+#           echo "| Dependency Analysis | ${{ needs.dependency-analysis.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> combined-report.md
+#           echo "| SAST Scan | ${{ needs.sast-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> combined-report.md
+#           echo "" >> combined-report.md
+#           
+#           # Combine individual reports if they exist
+#           for report in reports/*/; do
+#             if [ -d "$report" ]; then
+#               echo "## $(basename "$report" | tr '-' ' ' | sed 's/\b\w/\U&/g')" >> combined-report.md
+#               echo "" >> combined-report.md
+#               for file in "$report"*.md; do
+#                 if [ -f "$file" ]; then
+#                   cat "$file" >> combined-report.md
+#                   echo "" >> combined-report.md
+#                 fi
+#               done
+#             fi
+#           done
 
-      - name: Upload combined report
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-monitoring-summary
-          path: combined-report.md
-          retention-days: 90
+#       - name: Upload combined report
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: security-monitoring-summary
+#           path: combined-report.md
+#           retention-days: 90
