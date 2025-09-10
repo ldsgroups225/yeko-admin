@@ -1,5 +1,5 @@
 // Auto-generated metadata types
-// Generated on: 2025-09-09T16:01:03.066Z
+// Generated on: 2025-09-10T14:37:48.526Z
 
 export interface RouteMetadata {
   path: string;

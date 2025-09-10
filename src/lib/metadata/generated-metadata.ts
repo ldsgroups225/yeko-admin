@@ -1,5 +1,5 @@
 // Auto-generated project metadata
-// Generated on: 2025-09-09T16:01:03.072Z
+// Generated on: 2025-09-10T14:37:48.589Z
 
 import type { ProjectMetadata } from "./metadata-types";
 
@@ -91,6 +91,8 @@ export const projectMetadata: ProjectMetadata = {
     "knip",
     "lefthook",
     "lint-staged",
+    "npm-run-all",
+    "pglite-server",
     "tailwindcss",
     "tw-animate-css",
     "typescript",
@@ -101,22 +103,23 @@ export const projectMetadata: ProjectMetadata = {
   ],
   git: {
     branch: "main",
-    commit: "20d1f8e936164bf5d7da6d49971251bc264c1451",
-    shortCommit: "20d1f8e",
-    lastCommit: "20d1f8e fix(ci): resolve local test suite failures",
-    timestamp: "2025-09-09T16:01:03.011Z",
+    commit: "0057aee92f4de406a3be7dc1f13b916ccc51fe7e",
+    shortCommit: "0057aee",
+    lastCommit:
+      "0057aee chore: comment out workflows and disable Storybook related steps due to package removal",
+    timestamp: "2025-09-10T14:37:48.503Z",
   },
   build: {
-    timestamp: "2025-09-09T16:01:03.072Z",
+    timestamp: "2025-09-10T14:37:48.589Z",
     environment: "development",
     nodeVersion: "v20.18.1",
   },
   stats: {
-    totalFiles: 165,
+    totalFiles: 183,
     totalRoutes: 13,
     totalApiRoutes: 1,
     totalComponents: 59,
-    totalSize: 824097,
+    totalSize: 912467,
   },
 };
 
