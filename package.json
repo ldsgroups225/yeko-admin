@@ -159,7 +159,7 @@
     "@lhci/cli": "^0.15.1",
     "@next/bundle-analyzer": "^15.5.2",
     "@playwright/test": "^1.55.0",
-    "@spotlightjs/spotlight": "^3.0.2",
+    "@spotlightjs/spotlight": "^4.2.0",
     "@storybook/react": "^9.1.5",
     "@storybook/test": "^8.6.14",
     "@t3-oss/env-nextjs": "^0.13.8",
