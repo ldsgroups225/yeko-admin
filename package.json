@@ -157,7 +157,7 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@commitlint/prompt-cli": "^19.8.1",
     "@lhci/cli": "^0.15.1",
-    "@next/bundle-analyzer": "^15.5.2",
+    "@next/bundle-analyzer": "^16.0.0",
     "@playwright/test": "^1.55.0",
     "@spotlightjs/spotlight": "^3.0.2",
     "@storybook/react": "^9.1.5",
